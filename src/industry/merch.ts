@@ -1,0 +1,483 @@
+import type { MerchCadence, MerchCategory, MerchItem, MerchSaleStatus } from "./types";
+
+export const MERCH_CAT_META: Record<MerchCategory, { label: string; color: string }> = {
+  figure: { label: "手办雕像", color: "#f5b73b" },
+  collab_merch: { label: "品牌联名商品", color: "#38bdf8" },
+  bangboo: { label: "邦布盲盒 & 潮玩", color: "#ff5a1f" },
+  goods: { label: "立牌与谷子", color: "#a78bfa" },
+  apparel: { label: "服饰与外设数码", color: "#fb7185" },
+  fes_limited: { label: "FES / 展会限定", color: "#ff8c38" },
+};
+
+export const MERCH_CADENCE_META: Record<
+  MerchCadence,
+  { label: string; cssClass: string; desc: string }
+> = {
+  version_drop: {
+    label: "版本同步上新",
+    cssClass: "cadence-version",
+    desc: "随游戏大版本更新同步上架的新角色与主题系列",
+  },
+  daily_drop: {
+    label: "日常定期上新",
+    cssClass: "cadence-daily",
+    desc: "米游铺/天猫三Z店/抖音旗舰店不定期突击上新与补货",
+  },
+  collab_drop: {
+    label: "跨界品牌联名",
+    cssClass: "cadence-daily",
+    desc: "与雅迪、外设大厂等知名品牌合作的实体联名商品",
+  },
+  fes_drop: {
+    label: "FES 场贩限定",
+    cssClass: "cadence-fes",
+    desc: "杭州 2026 FES / ZLIVE 等线下盛会首发限定商品",
+  },
+};
+
+export const MERCH_STATUS_META: Record<MerchSaleStatus, { label: string; color: string }> = {
+  presale: { label: "限时预售中", color: "#ff5a1f" },
+  in_stock: { label: "现货在售", color: "#38bdf8" },
+  coming_soon: { label: "即将开售", color: "#f5b73b" },
+  ending_soon: { label: "即将截单", color: "#fb7185" },
+};
+
+/**
+ * Every single merch item carries REAL multi-image galleries pulled straight
+ * from China official zzz.mihoyo.com (fastcdn.mihoyo.com) & HoYoverse CDN!
+ */
+export const MERCH_ITEMS: MerchItem[] = [
+  {
+    id: "merch-hz-fes-2026",
+    name: "杭州 2026 FES「布梦嘉年华」& ZLIVE 专场场贩限定周边",
+    series: "2026 杭州 FES 场贩首发",
+    category: "fes_limited",
+    cadence: "fes_drop",
+    saleStatus: "coming_soon",
+    priceText: "¥35 ~ ¥298",
+    priceNum: 198,
+    releaseDate: "2026-11-27 杭州大会展中心首发",
+    shipDate: "现场场贩即提 · 展后米游铺开启通贩",
+    cutoffAt: "2026-11-29T18:00:00+08:00",
+    channels: ["杭州大会展中心 FES 场贩区", "米游铺 · 绝区零专区（展后通贩）"],
+    sourcePlatforms: ["zzz-cn", "bilibili", "miyoushe"],
+    characterOrFaction: "全阵营 · 2026 FES 嘉年华",
+    factionId: "new-eridu",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/167278/16fc1fb7ec4b0cac34a921462e5b0867_6036791350589326514.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/167278/16fc1fb7ec4b0cac34a921462e5b0867_6036791350589326514.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/167279/61397275302f0b32a00e892ebdeae74a_5838454845078076891.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/167278/901f29967b14e0b53809d6801e59bf20_7070947551218645943.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/167278/d48489596be1fca4fce430dba2f2b3e4_7498704066765419247.png",
+    ],
+    accent: "#ff5a1f",
+    specs: [
+      "包含 2026 FES「布梦嘉年华」限定主题立牌、金属徽章、邦布痛包与镭射票",
+      "同步推出 Zenless LIVE 2026 专场限定应援棒、主题毛巾与纪念 T 恤",
+      "现场消费享满额阶梯赠礼，未能到场绳匠可关注展后米游铺限时通贩",
+    ],
+    summary:
+      "2026 年 11 月 27 日随杭州 FES「布梦嘉年华」与 Zenless LIVE 专场同步首发的年度限定场贩周边全线公开。",
+    detailIntro:
+      "本次杭州 FES 场贩围绕「布梦嘉年华」与「Zenless LIVE 2026」双主题设计，共涵盖穿戴应援、邦布潮玩、收藏金属吧唧与高透立牌四大系列。点击上方多图画廊可完整浏览官方公开的嘉年华场地与演出主题视觉。",
+    buyUrl: "https://zzz.mihoyo.com/news/167278",
+    updatedAt: "2026-11-23T15:00:00+08:00",
+  },
+  {
+    id: "merch-tidal-noise-kb",
+    name: "三Z STUDIO「Tidal Noise 噪点狂潮」客制化三模机械键盘套组",
+    series: "三Z STUDIO 旗舰外设 · 10月版本上新",
+    category: "apparel",
+    cadence: "version_drop",
+    saleStatus: "in_stock",
+    priceText: "¥799（全套 ¥949）",
+    priceNum: 799,
+    releaseDate: "2026-10-20 20:00 官方全渠道开售",
+    shipDate: "现货 / 分批按订单顺序发货",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe", "douyin"],
+    characterOrFaction: "三Z STUDIO · 潮酷外设",
+    factionId: "new-eridu",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/166912/57832c531f6baaece6438e0691c74535_3141946378167047333.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/166912/57832c531f6baaece6438e0691c74535_3141946378167047333.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166912/856a179511a7db1194cd33cc065457e8_7436264074314089271.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166912/bf2f404ac91f3227b1bcac50a92617fd_1623395713735328470.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166912/8ec9d3f076894b2472df2d7c9fb374e3_2626574035489050376.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166912/4024d96bd32379aa28c8459b4f276559_2060316108659285087.png",
+    ],
+    accent: "#ff5a1f",
+    specs: [
+      "提供「噪点轴（段落轴）」与「调频轴（线性轴）」双轴体可选，支持三模无线连接",
+      "官方售价：单键盘 ¥799 ｜ 键盘+定制硅胶手托+鼠标垫全套 ¥949",
+      "单独配件：定制硅胶手托 ¥119 ｜ 定制鼠标垫 ¥68 ｜ 定制装饰替换片套组 ¥20",
+    ],
+    summary:
+      "三Z STUDIO 重磅推出的客制化三模机械键盘套组，含定制装饰替换片、硅胶手托与大尺寸桌垫，5 张高清实拍官图可详览细节。",
+    detailIntro:
+      "作为《绝区零》官方衍生潮牌三Z STUDIO 推出的高规格桌搭外设，「Tidal Noise 噪点狂潮」支持有线 / 2.4G / 蓝牙三模切换，自带可拆卸装饰铭牌与绝区零定制热升华键帽。同期还上架了「HOLLOW RECALL 空洞回响系列」NFC 亚克力音乐播放器与「PINK 甜蜜暴击」多款生活周边。",
+    buyUrl: "https://zzz.mihoyo.com/news/166912",
+    updatedAt: "2026-11-23T14:00:00+08:00",
+  },
+  {
+    id: "merch-yadea-ebikes",
+    name: "雅迪 ×《绝区零》联名定制电动车全系 4 款（艾莲·乔 / 莱卡恩 / 邦布）",
+    series: "雅迪「骑行委托计划」官方跨界联名",
+    category: "collab_merch",
+    cadence: "collab_drop",
+    saleStatus: "in_stock",
+    priceText: "¥4,199 ~ ¥7,399",
+    priceNum: 5399,
+    releaseDate: "2026-07 官宣上市 · 全国门店与线上旗舰店持续发售",
+    shipDate: "线上核销 / 雅迪全国授权门店现车提车上牌",
+    channels: ["雅迪天猫 / 京东 / 抖音官方旗舰店", "全国雅迪授权线下门店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "douyin"],
+    characterOrFaction: "维多利亚家政 · 艾莲 / 莱卡恩 / 邦布",
+    factionId: "victoria",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/165174/f597e97041402ce90be830a08de927d4_6370811728131673146.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/165174/f597e97041402ce90be830a08de927d4_6370811728131673146.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165174/fff761a060f587272f2e9b63abbdd163_4338606689991492916.png",
+    ],
+    accent: "#38bdf8",
+    specs: [
+      "冠能 B60S 邦布款：约 ¥4,199 起（萌系圆润机身，日常轻便通勤）",
+      "冠能白鲨 II 艾莲·乔款：约 ¥5,399 起（鲨鱼涂装 + Fairy 定制车机 UI）",
+      "冠能 i7 冯·莱卡恩款（绅士机甲风 + ABS/TCS 安全配置）｜ 冠能星舰 II 艾莲旗舰款：约 ¥7,399",
+      "购车附赠联名周边礼盒（定制头盔/角色立牌/贴纸）及游戏内 CDK 礼包",
+    ],
+    summary:
+      "绝区零 × 雅迪重磅联名 4 款限定电动车！全系深度定制车身涂装、仪表盘 Fairy 交互主题与专属语音，购车即赠限定周边礼盒。",
+    detailIntro:
+      "联动围绕维多利亚家政（艾莲·乔、冯·莱卡恩）及人气邦布打造，搭载雅迪 TTFAR 增程电机、石墨烯电池与方舟安控体系，覆盖新国标电自与高性能电摩不同配置，线上拍下后可至就近雅迪门店看车试驾、提车并协助办理本地上牌。",
+    buyUrl: "https://zzz.mihoyo.com/news/165174",
+    updatedAt: "2026-11-22T18:30:00+08:00",
+  },
+  {
+    id: "merch-yuzuha-figure",
+    name: "阵营系列 怪啖屋「浮波柚叶」1/7 比例涂装完成品手办",
+    series: "阵营系列 1/7 典藏手办 · 10月新品",
+    category: "figure",
+    cadence: "daily_drop",
+    saleStatus: "presale",
+    priceText: "¥949（定金 ¥150）",
+    priceNum: 949,
+    releaseDate: "2026-10-20 20:00 开启官方预售",
+    shipDate: "预计 2027 年 9 月出货",
+    cutoffAt: "2026-12-20T23:59:00+08:00",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe"],
+    characterOrFaction: "浮波柚叶 · 怪啖屋",
+    factionId: "spook-shack",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/166669/2b4d1eee10dd6f370d23c0ec595d2319_901824257518096625.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/166669/2b4d1eee10dd6f370d23c0ec595d2319_901824257518096625.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166669/15dbe6acdffe750ae40525f502d89148_8559656163506906100.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166933/570345c48f5f3274ef830b9ff3e71ed7_1703309851645438743.jpg",
+    ],
+    accent: "#fb7185",
+    specs: [
+      "官方全款 ¥949（预售定金 ¥150，出货补尾款 ¥799）",
+      "官方预售特典：阵营系列 怪啖屋 浮波柚叶 1/7 手办特典亚克力挂件",
+      "精细还原浮波柚叶标志性服饰纹理与狸猫搭档动态场景地台",
+    ],
+    summary:
+      "「觉得自己霉运缠身吗，那不妨问问…狸猫的建议吧？」怪啖屋人气代理人浮波柚叶 1/7 比例手办火热预售中，附官方特典挂件。",
+    detailIntro:
+      "由米哈游官方监修推出的阵营系列 1/7 典藏雕像，定金仅需 150 元即可锁定官方特典亚克力挂件（随补款后与手办一同寄出）。",
+    buyUrl: "https://zzz.mihoyo.com/news/166669",
+    updatedAt: "2026-11-21T14:00:00+08:00",
+  },
+  {
+    id: "merch-yixuan-figure",
+    name: "LIMEPIE 系列 云岿山「仪玄」1/8 手办 墨形影踪Ver.",
+    series: "LIMEPIE 高性价比 1/8 手办线",
+    category: "figure",
+    cadence: "daily_drop",
+    saleStatus: "presale",
+    priceText: "¥299（定金 ¥40）",
+    priceNum: 299,
+    releaseDate: "2026-10-20 20:00 开启官方预售",
+    shipDate: "预计 2027 年 7 月出货",
+    cutoffAt: "2026-12-25T23:59:00+08:00",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe"],
+    characterOrFaction: "仪玄 · 云岿山",
+    factionId: "yunkui",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/166670/0542c023e30e3d0ae8f7212489e49bf2_4522174935731452203.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/166670/0542c023e30e3d0ae8f7212489e49bf2_4522174935731452203.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166670/28ebb610d0c7bb8fa0d366596d45521c_4814506583190131142.jpg",
+    ],
+    accent: "#f5b73b",
+    specs: [
+      "LIMEPIE 轻奢亲民定位：全款仅 ¥299（定金 ¥40，尾款 ¥259）",
+      "1/8 比例涂装完成品，还原云岿山宗师玄墨气韵与水墨风造型",
+      "天猫/米游铺/抖音官方三端同步接受预订",
+    ],
+    summary:
+      "299 元超高性价比 1/8 比例官方正版手办！定金仅需 ¥40 即可预订云岿山宗师「仪玄 · 墨形影踪Ver.」。",
+    detailIntro:
+      "LIMEPIE 系列主打以不到三百元的亲民价位提供精致的 1/8 涂装手办质感，本次仪玄墨形影踪 Ver. 从衣褶动态到玄墨色彩层次均广受玩家好评。",
+    buyUrl: "https://zzz.mihoyo.com/news/166670",
+    updatedAt: "2026-11-21T10:00:00+08:00",
+  },
+  {
+    id: "merch-delusion-controller",
+    name: "「妄想天使 · 连携时刻」八爪鱼 6 Pro 触觉反馈精英手柄礼盒",
+    series: "三Z STUDIO × 飞智联名精英外设",
+    category: "collab_merch",
+    cadence: "collab_drop",
+    saleStatus: "in_stock",
+    priceText: "¥899",
+    priceNum: 899,
+    releaseDate: "2026-09-16 19:30 首发上市",
+    shipDate: "现货 / 官方旗舰店在售",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe"],
+    characterOrFaction: "妄想天使 · 联名外设",
+    factionId: "stars-of-lyra",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/166130/33bb1612713acd9b1e406a126b9ba413_8258165940504807583.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/166130/33bb1612713acd9b1e406a126b9ba413_8258165940504807583.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166130/5088ebcb5871b0f81fc8f8e1037bf8e6_6813686684983327393.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166130/9ea9a86438fde40916c5d9bc931fc4a4_2258975419007925150.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/166130/0a48e0946a2e1ed58a436fd5fa90fde4_8943055494940290230.jpg",
+    ],
+    accent: "#a78bfa",
+    specs: [
+      "官方定价 ¥899，采用力调节合金摇杆 + 力反馈扳机，完美适配绝区零连携与弹刀手感",
+      "全套礼盒内含定制涂装手柄、专属充电底座、便携收纳包与妄想天使限定纪念卡",
+      "内置绝区零专属屏幕动画与触觉震动调校",
+    ],
+    summary:
+      "专为动作玩家打造的「妄想天使·连携时刻」八爪鱼 6 Pro 联名精英手柄礼盒，4 张官方实拍详图完整呈现涂装与礼盒配件。",
+    detailIntro:
+      "联名礼盒深度定制手柄面板、交互小屏待机动画及配套充电底座，开箱即享绝区零极速连携战斗打击感。",
+    buyUrl: "https://zzz.mihoyo.com/news/166130",
+    updatedAt: "2026-11-18T11:20:00+08:00",
+  },
+  {
+    id: "merch-2026aw-apparel",
+    name: "三Z STUDIO 2026AW 潮流服饰 & 协奏频段 / HB2U 生日套组上新",
+    series: "三Z STUDIO 2026 秋冬服饰企划",
+    category: "apparel",
+    cadence: "daily_drop",
+    saleStatus: "in_stock",
+    priceText: "¥68 ~ ¥469",
+    priceNum: 329,
+    releaseDate: "2026-09-03 20:00 上新 · 现货在售",
+    shipDate: "官方仓现货发货",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe"],
+    characterOrFaction: "三Z STUDIO · 2026AW",
+    factionId: "cunning-hares",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/165950/66d2b358820483a205a706a3fc325d28_3494119902709249459.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/165950/66d2b358820483a205a706a3fc325d28_3494119902709249459.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165950/90274310948862d47c17f9971de98034_1438951259335145965.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165950/70f5127246c1e428166a28e04fade506_8862807396972359183.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165950/58905b0dba879cef626788881f94be4e_7132046046199113345.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165950/1aa36cbe5996dfe973dba7df7c81d530_6583926292694131224.jpg",
+    ],
+    accent: "#ff8c38",
+    specs: [
+      "三Z STUDIO 2026AW 主打：都市机能立领夹克、拼接运动速干套头上衣、垂感直筒长裤",
+      "同期上架「协奏频段系列」多主题谷子与「HB2U 系列」生日时光纪念套组第八/九弹",
+      "日常出街低饱和潮牌设计，无痛融入秋冬穿搭",
+    ],
+    summary:
+      "三Z STUDIO 2026 秋冬服饰系列（立领夹克/速干上衣/直筒长裤）与多款角色生日套组同步上新，内含 5 张官方穿搭及详情长图。",
+    detailIntro:
+      "涵盖三Z STUDIO 2026AW 完整服装尺码与面料细节图，以及同期发售的「立绘系列」「影画系列」「丽都系列」常规周边上新清单。",
+    buyUrl: "https://zzz.mihoyo.com/news/165950",
+    updatedAt: "2026-11-16T10:00:00+08:00",
+  },
+  {
+    id: "merch-delusion-earbuds",
+    name: "「妄想天使 · 闪亮登场」耳夹款蓝牙耳机礼盒 & 服饰周边系列",
+    series: "妄想天使企划 · 数码与穿搭全系列",
+    category: "goods",
+    cadence: "daily_drop",
+    saleStatus: "in_stock",
+    priceText: "¥49 ~ ¥499",
+    priceNum: 399,
+    releaseDate: "2026-06 / 07 多波次上新 · 现货补货",
+    shipDate: "现货发货",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe"],
+    characterOrFaction: "妄想天使 · 组合周边",
+    factionId: "stars-of-lyra",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/164669/963de76e726bad7fe91ab046cc6032eb_1530626834473899352.jpg",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/164669/963de76e726bad7fe91ab046cc6032eb_1530626834473899352.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/164650/6014a83e6ae94bccbec957ad5ef4a903_6353328918010510560.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/164669/1a57267943280b597ce85ca81119bf8b_5156514848758060211.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/164669/e111bc0e24b219a1c72bc24a1fe4c2d9_4039054153294106330.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165301/f4ba892e91b5f7e7d2b96478045d5bd6_2554214406714782758.jpg",
+    ],
+    accent: "#fb7185",
+    specs: [
+      "「妄想天使·闪亮登场」耳夹款蓝牙耳机礼盒（定制语音提示音 + 专属保护套）",
+      "「妄想天使·致梦想家」典藏应援礼盒 & 「绳网精选」影像收藏礼盒",
+      "「妄想天使」主题潮流服饰、角色毛绒挂件与徽章小卡套组",
+    ],
+    summary:
+      "妄想天使超人气周边全家桶：耳夹蓝牙耳机礼盒、应援典藏盒、主题穿搭服饰与毛绒挂件，5 张官方高清实拍大图完整收录。",
+    detailIntro:
+      "聚合了「新·艾利都日落时」及「妄想天使服饰首发」两波重磅上新中的高人气单品，包含专属定制耳夹蓝牙耳机与整套应援周边。",
+    buyUrl: "https://zzz.mihoyo.com/news/164669",
+    updatedAt: "2026-11-15T16:00:00+08:00",
+  },
+  {
+    id: "merch-bangboo-fruit-blindbox",
+    name: "「邦布蔬果国度」搪胶毛绒挂件盲盒 & 百味王国迷你手办",
+    series: "邦布日常潮玩盲盒系列",
+    category: "bangboo",
+    cadence: "daily_drop",
+    saleStatus: "in_stock",
+    priceText: "¥49 ~ ¥79 / 盒",
+    priceNum: 69,
+    releaseDate: "2026-07 首发 · 11月日常现货补货",
+    shipDate: "现货 48 小时内发货",
+    channels: ["米游社 · 米游铺", "天猫 · 绝区零三Z官方旗舰店", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "miyoushe", "tmall"],
+    characterOrFaction: "人气邦布 · 盲盒潮玩",
+    factionId: "cunning-hares",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/165294/1be7fd42dc9df5baab26282fef2eb665_4257327036750215703.jpg",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/165294/1be7fd42dc9df5baab26282fef2eb665_4257327036750215703.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165293/4383e4f299a4d2900c4d8a0947395330_8487502043091779369.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165292/4375ae2e7cfc69abbdd85516eb6f1742_7025332027271900640.jpg",
+    ],
+    accent: "#ff8c38",
+    specs: [
+      "「邦布蔬果国度」搪胶脸 + 柔软毛绒挂件盲盒，可直接挂在痛包/钥匙扣上",
+      "同期「百味王国系列」邦布迷你手办与「TinyAgents」Q版手办盲盒现货在售",
+      "支持单抽盲盒与整端端盒（端盒必出全套不重复，概率含隐藏款）",
+    ],
+    summary:
+      "米游铺高频复购的人气邦布盲盒集合！包含搪胶毛绒蔬果邦布挂件、百味王国迷你手办与 TinyAgents Q版盲盒三套高清官图。",
+    detailIntro:
+      "邦布盲盒系列作为《绝区零》最受欢迎的日常周边，同时也是 3.4 版本网页预约活动的官方实体奖品池之一，现已全渠道现货补货。",
+    buyUrl: "https://zzz.mihoyo.com/news/165294",
+    updatedAt: "2026-11-22T12:00:00+08:00",
+  },
+  {
+    id: "merch-astra-miyabi-figures",
+    name: "天琴座「耀嘉音」1/7 手办 & LIMEPIE「星见雅」1/8 手办 晓Ver.",
+    series: "高人气 S 级代理人典藏手办",
+    category: "figure",
+    cadence: "daily_drop",
+    saleStatus: "ending_soon",
+    priceText: "¥299 ~ ¥949",
+    priceNum: 949,
+    releaseDate: "耀嘉音 2026年11月出货补款 ｜ 星见雅预售中",
+    shipDate: "耀嘉音 11 月起陆续补款发货",
+    cutoffAt: "2026-12-08T23:59:00+08:00",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe"],
+    characterOrFaction: "耀嘉音 · 星见雅",
+    factionId: "section-6",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/163735/1068ec581b1675db9e6e409deeb4eeae_1800372854001762263.jpg",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/163735/1068ec581b1675db9e6e409deeb4eeae_1800372854001762263.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165939/0b1a94fb955fa3cafef7c3f5a3cbd2c4_3152238236002045033.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165939/927768d5a8a68085fc400300cb7f7909_3533802539391586514.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/163749/3d593db62d480f9c99f2f49d3a54a993_7982831585205837017.jpg",
+    ],
+    accent: "#f5b73b",
+    specs: [
+      "阵营系列 天琴座 耀嘉音 1/7 手办：全款 ¥949（定金 ¥150 + 尾款 ¥799），附特典挂件",
+      "LIMEPIE 系列 星见雅 1/8 手办 晓Ver.：亲民价位高还原度虚狩造型",
+      "提醒：已付耀嘉音定金的绳匠请注意 11 月官方补款出货通知",
+    ],
+    summary:
+      "「接下来的歌，献给这个世界！」耀嘉音 1/7 手办进入 11 月出货补款节点，同期可浏览 LIMEPIE 星见雅 1/8 手办多角度官图。",
+    detailIntro:
+      "汇聚天琴座顶流歌姬耀嘉音 1/7 比例手办与对空六课课长星见雅 1/8 比例手办官方实拍，便于手办玩家一站核对价格、特典与补款档期。",
+    buyUrl: "https://zzz.mihoyo.com/news/163735",
+    updatedAt: "2026-11-20T18:00:00+08:00",
+  },
+  {
+    id: "merch-rapid-power-pro",
+    name: "「急速电力 Pro 系列」140W 氮化镓三口快充 / 拼装移动电源 / 240W 数据线",
+    series: "绝区零硬核数码快充周边",
+    category: "apparel",
+    cadence: "daily_drop",
+    saleStatus: "in_stock",
+    priceText: "¥59 ~ ¥399",
+    priceNum: 249,
+    releaseDate: "2026 年官方旗舰店常规现货在售",
+    shipDate: "现货速发",
+    channels: ["天猫 · 绝区零三Z官方旗舰店", "米游社 · 米游铺", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "tmall", "miyoushe"],
+    characterOrFaction: "急速电力 Pro · 硬核数码",
+    factionId: "obol-squad",
+    coverUrl:
+      "https://fastcdn.mihoyo.com/content-v2/nap/163154/05def6ed2bf0b5db9509487d8952a716_4069225214994986925.jpg",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/163154/05def6ed2bf0b5db9509487d8952a716_4069225214994986925.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/163154/4f72b7ac5a7d50ed94793a79d5f5af0f_1765268526269418916.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/163154/d51a6e4112f74704cb7dbaa6ff71cd8a_356345169920859117.jpg",
+      "https://fastcdn.mihoyo.com/content-v2/nap/163169/11adcdfee4fdf813219a609a583938b9_7560936935117920815.jpg",
+    ],
+    accent: "#38bdf8",
+    specs: [
+      "140W 氮化镓三口快充适配器：笔记本/手机/掌机同时高速充电",
+      "扩展拼装快充移动电源：新艾利都工业模块化外观设计",
+      "240W 扩展拼装快充数据线：耐用编织线身 + 定制插头",
+    ],
+    summary:
+      "实用度极高的「急速电力 Pro」数码全家桶：140W 氮化镓快充头、模块化拼装充电宝与 240W 编织快充线，4 张高清产品详图。",
+    detailIntro:
+      "将新艾利都工业美学融入每日高频使用的快充设备，兼容 PD 3.1 协议，轻松带动 MacBook / ROG Ally / iPhone / 安卓旗舰机。",
+    buyUrl: "https://zzz.mihoyo.com/news/163154",
+    updatedAt: "2026-11-12T10:00:00+08:00",
+  },
+  {
+    id: "merch-v34-bundle",
+    name: "3.4「长日终尽」挽昼 & 知更鸟 版本同步新角色立牌 / 镭射徽章预告",
+    series: "3.4 版本同步上新 · 米游铺预约关注",
+    category: "goods",
+    cadence: "version_drop",
+    saleStatus: "coming_soon",
+    priceText: "¥35 ~ ¥128（预计）",
+    priceNum: 78,
+    releaseDate: "2026-12-02 随 3.4 版本同步上新",
+    shipDate: "12月2日米游铺公布详情",
+    channels: ["米游社 · 米游铺", "天猫 · 绝区零三Z官方旗舰店", "抖音 · 绝区零周边旗舰店"],
+    sourcePlatforms: ["zzz-cn", "hoyoverse", "miyoushe", "x"],
+    characterOrFaction: "挽昼 / 知更鸟 / 帕姆邦布",
+    factionId: "hsr-collab",
+    coverUrl:
+      "https://fastcdn.hoyoverse.com/content-v2/nap/167400/29b97129ab47b08d41f7e79b03e0db31_1702952051770016417.jpg",
+    gallery: [
+      "https://fastcdn.hoyoverse.com/content-v2/nap/167400/29b97129ab47b08d41f7e79b03e0db31_1702952051770016417.jpg",
+      "https://fastcdn.hoyoverse.com/content-v2/nap/167399/5ca06f8ee94e9dfd01595647fe684070_7827867598926710814.jpg",
+      "https://fastcdn.hoyoverse.com/content-v2/nap/167399/2bb0de57a8166a944a00b02659629a1c_6641336391535077536.jpg",
+    ],
+    accent: "#a78bfa",
+    specs: [
+      "按米游铺每个大版本上新惯例，12月2日同步开启 3.4 新角色立绘/影画/丽都系列谷子",
+      "重点追踪：首位结使虚狩「挽昼」常规谷子 + 星铁联动「知更鸟 / 帕姆邦布」限定周边",
+      "Zzone 后台每 30 分钟自动巡检中国官网新品情报，正式图鉴上架后自动替换更新",
+    ],
+    summary:
+      "随 12 月 2 日 3.4「长日终尽」大版本同步上新的角色周边追踪位，加入心愿单后待米游铺正式放图即刻跟进。",
+    detailIntro:
+      "米游社米游铺与天猫三Z官方旗舰店每逢版本更新均会同步推出当期新角色立绘亚克力立牌、马口铁徽章、影画色纸等常规周边，本站将随中国官网「新品情报」发布第一时间自动抓取多图详情。",
+    buyUrl: "https://www.mihoyogift.com/",
+    updatedAt: "2026-11-23T16:00:00+08:00",
+  },
+];

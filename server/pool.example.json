@@ -1,0 +1,48 @@
+{
+  "_comment": "复制本文件为 server/pool.json（已在 .gitignore 忽略）或设置环境变量 ACCOUNT_POOL_JSON，即可无缝接入多平台号池进行实时增量抓取与 AI 摘要。",
+  "accounts": [
+    {
+      "id": "mys-01",
+      "platform": "miyoushe",
+      "label": "米游社采集号-01",
+      "enabled": true,
+      "rateLimitPerMin": 20,
+      "credentials": {
+        "cookie": "ltuid_v2=xxx; ltoken_v2=xxx;"
+      }
+    },
+    {
+      "id": "x-01",
+      "platform": "x",
+      "label": "X/Twitter 情报号-01",
+      "enabled": true,
+      "rateLimitPerMin": 15,
+      "credentials": {
+        "authToken": "YOUR_X_AUTH_TOKEN",
+        "ct0": "YOUR_X_CT0"
+      },
+      "proxy": "http://127.0.0.1:7890"
+    },
+    {
+      "id": "bili-01",
+      "platform": "bilibili",
+      "label": "B站动态号-01",
+      "enabled": true,
+      "rateLimitPerMin": 25,
+      "credentials": {
+        "sessdata": "YOUR_SESSDATA"
+      }
+    },
+    {
+      "id": "llm-01",
+      "platform": "llm",
+      "label": "AI 评分/翻译/归组模型",
+      "enabled": true,
+      "credentials": {
+        "baseUrl": "https://api.deepseek.com/v1",
+        "apiKey": "sk-xxxx",
+        "model": "deepseek-chat"
+      }
+    }
+  ]
+}

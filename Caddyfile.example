@@ -1,0 +1,7 @@
+# 将下面域名替换为你自己的专属域名，并将域名 A 记录解析到你的云服务器公网 IP
+# Caddy 会自动通过 Let's Encrypt 申请并续期免费 HTTPS 证书，开启 HTTP/2 与压缩
+
+zzone.example.com {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:3000
+}

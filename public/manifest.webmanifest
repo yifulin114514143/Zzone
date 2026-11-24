@@ -1,0 +1,18 @@
+{
+  "name": "Zzone · 绝区零全生态资讯",
+  "short_name": "Zzone",
+  "description": "绝区零官方公告实时抓取、线下 FES 与同人活动、米游铺周边定期上新追踪、热点聚合与日程倒计时",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0c11",
+  "theme_color": "#0b0c11",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/anby-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

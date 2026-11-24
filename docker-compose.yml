@@ -1,0 +1,20 @@
+services:
+  zzone:
+    build: .
+    container_name: zzone-hub
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - TZ=Asia/Shanghai
+      - SYNC_INTERVAL_MS=900000
+      - MERCH_CHECK_INTERVAL_MS=1800000
+      # 建议公网部署时设置随机密钥保护 POST /api/v1/ingest
+      # - INGEST_TOKEN=replace-with-your-secret-token
+    volumes:
+      # 持久化外部与号池推送的资讯、活动、周边数据
+      - ./server/data:/app/server/data
+      # 可选：挂载你的多平台号池配置文件（先从 pool.example.json 复制）
+      # - ./server/pool.json:/app/server/pool.json:ro

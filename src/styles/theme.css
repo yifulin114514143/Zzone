@@ -1,0 +1,221 @@
+/* ==========================================================================
+   Zzone · 高级无绿都市美学设计系统 (Sunset Ember & Champagne Gold)
+   Harmonized directly with Zenless Zone Zero's Anby official icon palette
+   ========================================================================== */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Deep Obsidian Velvet Surfaces */
+  --bg: #0b0c11;
+  --bg-subtle: #12141c;
+  --surface: #171a24;
+  --surface-hover: #1e2230;
+  --surface-elevated: #232838;
+  --glass: rgba(13, 15, 22, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.085);
+  --border: rgba(255, 255, 255, 0.085);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --text-1: #f5f7fb;
+  --text-2: #b6bfd1;
+  --text-3: #7d879c;
+
+  /* Primary Brand Accent — Anby Sunset Ember Orange */
+  --brand: #ff5a1f;
+  --brand-2: #ff8c38;
+  --brand-grad: linear-gradient(135deg, #ff5a1f 0%, #ff8c38 100%);
+  --brand-ink: #ffffff;
+  --brand-text: #ff7a45;
+  --brand-soft: rgba(255, 90, 31, 0.15);
+  --brand-border: rgba(255, 90, 31, 0.36);
+
+  /* Secondary Highlight — Champagne S-Rank Gold */
+  --gold: #f5b73b;
+  --gold-text: #fbcb62;
+  --gold-soft: rgba(245, 183, 59, 0.15);
+  --gold-border: rgba(245, 183, 59, 0.34);
+
+  /* Accent Companions — Cobalt Sky & Iris Violet (Zero harsh green!) */
+  --sky: #38bdf8;
+  --sky-soft: rgba(56, 189, 248, 0.14);
+  --sky-border: rgba(56, 189, 248, 0.32);
+
+  --violet: #a78bfa;
+  --violet-soft: rgba(167, 139, 250, 0.15);
+  --violet-border: rgba(167, 139, 250, 0.34);
+
+  --rose: #fb7185;
+  --rose-soft: rgba(251, 113, 133, 0.15);
+
+  /* Subtle online indicator only */
+  --live-dot: #38bdf8;
+
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.26);
+  --shadow-md: 0 14px 36px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 26px 68px rgba(0, 0, 0, 0.6);
+
+  --ambient-top:
+    radial-gradient(58% 42% at 14% -6%, rgba(255, 90, 31, 0.12), transparent 70%),
+    radial-gradient(52% 40% at 88% -4%, rgba(139, 92, 246, 0.1), transparent 70%);
+
+  --font-brand: "Outfit", "Inter", sans-serif;
+  --font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f6f7fa;
+  --bg-subtle: #eceef4;
+  --surface: #ffffff;
+  --surface-hover: #fafbfe;
+  --surface-elevated: #ffffff;
+  --glass: rgba(255, 255, 255, 0.86);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --border: rgba(15, 23, 42, 0.085);
+  --border-strong: rgba(15, 23, 42, 0.16);
+
+  --text-1: #11131a;
+  --text-2: #4b5468;
+  --text-3: #838ca1;
+
+  --brand: #e84b14;
+  --brand-2: #f97316;
+  --brand-grad: linear-gradient(135deg, #e84b14 0%, #f97316 100%);
+  --brand-ink: #ffffff;
+  --brand-text: #d9410c;
+  --brand-soft: rgba(232, 75, 20, 0.1);
+  --brand-border: rgba(232, 75, 20, 0.28);
+
+  --gold: #d99316;
+  --gold-text: #b47306;
+  --gold-soft: rgba(217, 147, 22, 0.12);
+  --gold-border: rgba(217, 147, 22, 0.3);
+
+  --sky: #0284c7;
+  --sky-soft: rgba(2, 132, 199, 0.1);
+  --sky-border: rgba(2, 132, 199, 0.28);
+
+  --violet: #7c3aed;
+  --violet-soft: rgba(124, 58, 237, 0.1);
+  --violet-border: rgba(124, 58, 237, 0.28);
+
+  --rose: #e11d48;
+  --rose-soft: rgba(225, 29, 72, 0.1);
+
+  --live-dot: #0284c7;
+
+  --shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.045);
+  --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.075);
+  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.14);
+
+  --ambient-top:
+    radial-gradient(58% 42% at 14% -6%, rgba(255, 90, 31, 0.09), transparent 70%),
+    radial-gradient(52% 40% at 88% -4%, rgba(124, 58, 237, 0.07), transparent 70%);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image: var(--ambient-top);
+  background-attachment: fixed;
+  color: var(--text-1);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: var(--brand);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.spin {
+  animation: spin-rot 900ms linear infinite;
+}
+
+@keyframes spin-rot {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Smooth circular theme reveal */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 50%));
+  animation: theme-reveal 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes theme-reveal {
+  to {
+    clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 50%));
+  }
+}
