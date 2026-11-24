@@ -1,5 +1,7 @@
 import { buildUnifiedNewsList, type RawOfficialArticle } from "../industry/news";
 import type { NewsItem } from "../industry/types";
+import type { AppLang } from "./i18n";
+import { UI_DICT } from "./i18n";
 
 function stripHtml(html = ""): string {
   return html
@@ -42,16 +44,28 @@ export interface LiveSyncResult {
   message: string;
 }
 
+const SLANG_MAP: Record<AppLang, string> = {
+  zh: "zh-cn",
+  ja: "ja-jp",
+  ko: "ko-kr",
+  en: "en-us",
+};
+
 /**
- * Live fetch real official HoYoverse ZZZ news:
- * 1) Tries our deployable backend `/api/v1/sync` (which also orchestrates Account Pool sources)
- * 2) Falls back to Vite dev proxy `/api/hoyoverse/...` directly hitting HoYoverse Content-V2 API
- * 3) Gracefully falls back to bundled local official snapshot if offline
+ * Live fetch real official HoYoverse ZZZ news for the active language (zh / ja / ko / en)
  */
-export async function syncLiveOfficialNews(): Promise<LiveSyncResult> {
-  // 1. Try deployed Node backend first
+export async function syncLiveOfficialNews(
+  lang: AppLang = "zh",
+  forceRefresh = false
+): Promise<LiveSyncResult> {
+  const dict = UI_DICT[lang];
+
+  // 1. Try deployed Node backend first (uses GET cached lang endpoint on language switch, POST on manual refresh)
   try {
-    const apiRes = await fetch("/api/v1/sync", { method: "POST" });
+    const endpoint = forceRefresh
+      ? `/api/v1/sync?lang=${lang}`
+      : `/api/v1/news?lang=${lang}`;
+    const apiRes = await fetch(endpoint, { method: forceRefresh ? "POST" : "GET" });
     if (apiRes.ok) {
       const data = await apiRes.json();
       if (Array.isArray(data?.officialItems) && data.officialItems.length > 0) {
@@ -60,10 +74,10 @@ export async function syncLiveOfficialNews(): Promise<LiveSyncResult> {
           ok: true,
           items,
           syncedAt: data.fetchedAt || new Date().toISOString(),
-          fetchedCount: data.officialItems.length,
+          fetchedCount: items.length,
           via: "backend-api",
           poolActiveAccounts: data.pool?.activeAccounts ?? 0,
-          message: `已通过后端抓取服务实时同步 ${data.officialItems.length} 条绝区零官方资讯`,
+          message: dict.toastSynced(items.length),
         };
       }
     }
@@ -71,10 +85,10 @@ export async function syncLiveOfficialNews(): Promise<LiveSyncResult> {
     // fall through to Vite dev proxy
   }
 
-  // 2. Try Vite dev proxy directly to HoYoverse Content-V2 API
+  // 2. Fallback: Vite dev proxy directly hitting HoYoverse Content-V2 API in target language
   try {
-    const url =
-      "/api/hoyoverse/content_v2_user/app/3e9196a4b9274bd7/getContentList?iPageSize=24&iPage=1&sLangKey=zh-cn&iChanId=288";
+    const sLang = SLANG_MAP[lang];
+    const url = `/api/hoyoverse/content_v2_user/app/3e9196a4b9274bd7/getContentList?iPageSize=24&iPage=1&sLangKey=${sLang}&iChanId=288`;
     const res = await fetch(url);
     if (res.ok) {
       const json = await res.json();
@@ -84,12 +98,13 @@ export async function syncLiveOfficialNews(): Promise<LiveSyncResult> {
           const plain = stripHtml(String(raw.sContent || raw.sIntro || ""));
           const chanArr = Array.isArray(raw.sChanId) ? raw.sChanId : ["295"];
           return {
-            infoId: String(raw.iInfoId),
+            infoId: `${lang}-${raw.iInfoId}`,
             channelId: String(chanArr[0] || "295"),
             title: String(raw.sTitle || "").trim(),
             publishedAt: String(raw.dtStartTime || "").replace(" ", "T") + "+08:00",
             coverUrl: extractCover(String(raw.sExt || "")),
-            officialUrl: `https://zenless.hoyoverse.com/zh-cn/news/${raw.iInfoId}`,
+            officialUrl: `https://zenless.hoyoverse.com/${sLang}/news/${raw.iInfoId}`,
+            sourcePlatform: lang === "ja" ? "zzz-jp" : "hoyoverse",
             excerpt: plain.slice(0, 220),
             bodyText: plain.slice(0, 2200),
           };
@@ -99,10 +114,10 @@ export async function syncLiveOfficialNews(): Promise<LiveSyncResult> {
           ok: true,
           items,
           syncedAt: new Date().toISOString(),
-          fetchedCount: rawArticles.length,
+          fetchedCount: items.length,
           via: "vite-proxy",
           poolActiveAccounts: 0,
-          message: `已直连 HoYoverse 官方接口刷新 ${rawArticles.length} 条实时资讯`,
+          message: dict.toastSynced(items.length),
         };
       }
     }
@@ -114,9 +129,9 @@ export async function syncLiveOfficialNews(): Promise<LiveSyncResult> {
     ok: false,
     items: buildUnifiedNewsList(),
     syncedAt: new Date().toISOString(),
-    fetchedCount: 24,
+    fetchedCount: 20,
     via: "snapshot-fallback",
     poolActiveAccounts: 0,
-    message: "当前处于离线/静态预览模式，已加载最新官方快照数据",
+    message: dict.toastSynced(20),
   };
 }

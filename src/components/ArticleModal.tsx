@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Bookmark, ExternalLink, Share2, Sparkles, Type, X } from "lucide-react";
 import { CATEGORY_META } from "../industry/site";
 import type { NewsItem } from "../industry/types";
+import { CAT_LABELS, useI18n } from "../lib/i18n";
 import { formatHM, formatSlashMD } from "../lib/time";
 import { ImageGallery } from "./ImageGallery";
 import { SourceBadge } from "./SourceIcon";
@@ -16,7 +17,7 @@ interface ArticleModalProps {
 
 function highlightKeyTerms(text: string): React.ReactNode {
   const rx =
-    /(202\d\/\d{1,2}\/\d{1,2}(?:\s+\d{2}:\d{2})?|\d+月\d+日|\d+菲林底片|菲林[×x*]\d+|\d+菲林|加密母带[×x*]\d+|邦布券[×x*]\d+|知更鸟|挽昼|卡芙卡|赛维里安|杭州 FES|ZLIVE)/g;
+    /(202\d\/\d{1,2}\/\d{1,2}(?:\s+\d{2}:\d{2})?|\d+月\d+日|\d+菲林底片|菲林[×x*]\d+|\d+菲林|ポリクローム[×x*]\d+|폴리크롬[×x*]\d+|Polychrome\s*[×x*]\d+|加密母带[×x*]\d+|邦布券[×x*]\d+|知更鸟|挽昼|卡芙卡|赛维里安|サンブリンガー|ロビン|カフカ|セヴェリアン|태양을 가져온 자|로빈|카프카|세베리안|Sunbringer|Robin|Kafka|Severian|杭州 FES|ZLIVE)/g;
   return text.split(rx).map((part, i) =>
     i % 2 === 1 ? (
       <span key={i} className="hl-chip">
@@ -35,6 +36,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   onToggleBookmark,
   onNotify,
 }) => {
+  const { lang, t } = useI18n();
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [largeFont, setLargeFont] = useState(false);
@@ -52,6 +54,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   if (!item) return null;
 
   const cat = CATEGORY_META[item.category];
+  const catLabel = CAT_LABELS[lang][item.category] || cat.label;
   const galleryImages =
     item.gallery && item.gallery.length > 0
       ? item.gallery
@@ -68,10 +71,10 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(`【Zzone 绝区零资讯】${item.title} ${item.originalUrl}`);
-      onNotify("已复制标题与原文链接");
+      await navigator.clipboard.writeText(`[Zzone] ${item.title} ${item.originalUrl}`);
+      onNotify(t.toastShareCopied);
     } catch {
-      onNotify("复制失败，请手动复制");
+      onNotify("Copy failed");
     }
   };
 
@@ -94,7 +97,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
             <span className="faction-pill">
               <span className="faction-dot" style={{ "--fc": cat.color } as React.CSSProperties} />
-              {cat.label}
+              {catLabel}
             </span>
             <span
               className="mono"
@@ -185,7 +188,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
                 }}
               >
                 <Sparkles size={14} color="var(--brand-text)" />
-                核心要点速览
+                {t.takeawaysTitle}
               </div>
               <ul>
                 {item.takeaways.map((t, i) => (
@@ -221,7 +224,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
             }}
           >
             <span style={{ fontSize: 12.5, color: "var(--text-3)" }}>
-              来源：{item.source} · 全网关联 {item.sourceCount} 处信源
+              {t.sourcePrefix}{item.source} · {t.sourcesMentioned(item.sourceCount)}
             </span>
             <a
               href={item.originalUrl}
@@ -229,7 +232,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
               rel="noreferrer"
               className="btn-primary"
             >
-              查看官方原文 <ExternalLink size={14} />
+              {t.viewOriginalBtn} <ExternalLink size={14} />
             </a>
           </div>
         </div>

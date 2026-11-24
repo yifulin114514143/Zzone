@@ -24,12 +24,21 @@ export type SourceTier = "official" | "media" | "community";
 export type SourcePlatformKey =
   | "zzz-cn"
   | "hoyoverse"
-  | "x"
-  | "bilibili"
+  | "zzz-jp"
   | "miyoushe"
   | "hoyolab"
+  | "x"
+  | "bilibili"
+  | "youtube"
+  | "weibo"
   | "tmall"
   | "douyin"
+  | "apex"
+  | "hpoi"
+  | "cpp"
+  | "ticket"
+  | "xhs"
+  | "taptap"
   | "nga"
   | "reddit"
   | "fan";
@@ -94,6 +103,7 @@ export interface OfflineEvent {
   venue: string;
   dateRange: string;
   startAt: string;
+  endAt?: string;
   ticketStatus: string;
   accent: string;
   coverUrl: string;

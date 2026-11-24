@@ -1,8 +1,11 @@
 import React, { useMemo, useRef, useState } from "react";
-import { ArrowDownWideNarrow, Flame, RefreshCw, Search, X } from "lucide-react";
-import { CATEGORY_META } from "../industry/site";
+import { ArrowDownWideNarrow, Flame, RefreshCw, Search, Sparkles, X } from "lucide-react";
 import type { NewsCategory, NewsItem, SourcePlatformKey } from "../industry/types";
+import { CAT_LABELS, PLATFORM_LABELS, useI18n } from "../lib/i18n";
+import { sortNewsByPriority } from "../lib/ranking";
 import { NewsCard } from "../components/NewsCard";
+import { RedeemCodesStrip } from "../components/RedeemCodesBar";
+import { SOURCE_PLATFORM_META } from "../components/SourceIcon";
 
 interface FeedViewProps {
   news: NewsItem[];
@@ -11,28 +14,30 @@ interface FeedViewProps {
   isSyncing: boolean;
   onSync: () => void;
   onOpenItem: (item: NewsItem) => void;
+  onCopyCode: (code: string) => void;
+  onOpenCodes: () => void;
   onToggleBookmark: (id: string) => void;
 }
 
 const CATS: Array<NewsCategory | "all"> = [
   "all",
   "collab",
-  "banner",
-  "event",
-  "agent",
   "patch",
-  "guide",
-  "code",
+  "event",
+  "banner",
+  "agent",
   "media",
 ];
 
-const SOURCE_OPTIONS: Array<{ id: SourcePlatformKey | "all"; label: string }> = [
-  { id: "all", label: "全部来源平台" },
-  { id: "zzz-cn", label: "绝区零国服官网" },
-  { id: "hoyoverse", label: "HoYoverse 国际官网" },
-  { id: "x", label: "X / Twitter 官方" },
-  { id: "bilibili", label: "Bilibili" },
-  { id: "miyoushe", label: "米游社" },
+const SOURCE_KEYS: Array<SourcePlatformKey | "all"> = [
+  "all",
+  "zzz-cn",
+  "hoyoverse",
+  "miyoushe",
+  "hoyolab",
+  "zzz-jp",
+  "x",
+  "bilibili",
 ];
 
 export const FeedView: React.FC<FeedViewProps> = ({
@@ -42,12 +47,14 @@ export const FeedView: React.FC<FeedViewProps> = ({
   isSyncing,
   onSync,
   onOpenItem,
+  onCopyCode,
+  onOpenCodes,
   onToggleBookmark,
 }) => {
+  const { lang, t } = useI18n();
   const [cat, setCat] = useState<NewsCategory | "all">("all");
   const [platform, setPlatform] = useState<SourcePlatformKey | "all">("all");
-  const [onlyOfficial, setOnlyOfficial] = useState(false);
-  const [sortBy, setSortBy] = useState<"latest" | "heat">("latest");
+  const [sortBy, setSortBy] = useState<"priority" | "latest" | "heat">("priority");
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -56,7 +63,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
     const list = news.filter((item) => {
       if (cat !== "all" && item.category !== cat) return false;
       if (platform !== "all" && item.sourcePlatform !== platform) return false;
-      if (onlyOfficial && item.sourceTier !== "official") return false;
       if (q) {
         const hay = `${item.title} ${item.summary} ${item.tags.join(" ")} ${item.source}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -64,26 +70,31 @@ export const FeedView: React.FC<FeedViewProps> = ({
       return true;
     });
 
+    if (sortBy === "priority") {
+      return sortNewsByPriority(list);
+    }
     if (sortBy === "heat") {
       return [...list].sort((a, b) => b.heat - a.heat);
     }
     return [...list].sort(
       (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     );
-  }, [news, cat, platform, onlyOfficial, query, sortBy]);
+  }, [news, cat, platform, query, sortBy]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div className="section-head" style={{ marginBottom: 0 }}>
         <div className="section-title-group">
-          <span className="section-kicker">MULTI-SOURCE LIVE FEED</span>
-          <h1 className="section-title">全网实时资讯聚合</h1>
+          <span className="section-kicker">{t.feedKicker}</span>
+          <h1 className="section-title">{t.feedTitle}</h1>
         </div>
         <button type="button" className="btn-primary" onClick={onSync} disabled={isSyncing}>
           <RefreshCw size={14} className={isSyncing ? "spin" : ""} />
-          {isSyncing ? "正在拉取官网..." : "刷新最新官网资讯"}
+          {isSyncing ? t.refreshingBtn : t.refreshOfficialBtn}
         </button>
       </div>
+
+      <RedeemCodesStrip onCopyCode={onCopyCode} onOpenModal={onOpenCodes} />
 
       <div className="panel" style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="toolbar-row">
@@ -94,12 +105,12 @@ export const FeedView: React.FC<FeedViewProps> = ({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="过滤版本、活动、代理人或关键词..."
+              placeholder={t.feedPlaceholder}
             />
             {query && (
               <button
                 type="button"
-                aria-label="清空资讯过滤词"
+                aria-label="Clear"
                 onClick={() => setQuery("")}
                 style={{ background: "none", border: "none", padding: 2 }}
               >
@@ -112,7 +123,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
             <select
               value={platform}
               onChange={(e) => setPlatform(e.target.value as SourcePlatformKey | "all")}
-              aria-label="按来源平台筛选"
+              aria-label={t.allSourcesOpt}
               style={{
                 height: 36,
                 padding: "0 12px",
@@ -123,35 +134,36 @@ export const FeedView: React.FC<FeedViewProps> = ({
                 fontWeight: 600,
               }}
             >
-              {SOURCE_OPTIONS.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label}
+              {SOURCE_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {key === "all"
+                    ? t.allSourcesOpt
+                    : PLATFORM_LABELS[lang]?.[key] || SOURCE_PLATFORM_META[key]?.name || key}
                 </option>
               ))}
             </select>
 
-            <button
-              type="button"
-              className={`chip ${onlyOfficial ? "active" : ""}`}
-              onClick={() => setOnlyOfficial((v) => !v)}
-            >
-              仅看官方直连
-            </button>
-
-            <div className="sort-pill-group" role="group" aria-label="排序方式">
+            <div className="sort-pill-group" role="group">
+              <button
+                type="button"
+                className={`sort-pill-btn ${sortBy === "priority" ? "active" : ""}`}
+                onClick={() => setSortBy("priority")}
+              >
+                <Sparkles size={12} /> {t.sortPriority}
+              </button>
               <button
                 type="button"
                 className={`sort-pill-btn ${sortBy === "latest" ? "active" : ""}`}
                 onClick={() => setSortBy("latest")}
               >
-                <ArrowDownWideNarrow size={12} /> 最新
+                <ArrowDownWideNarrow size={12} /> {t.sortLatest}
               </button>
               <button
                 type="button"
                 className={`sort-pill-btn ${sortBy === "heat" ? "active" : ""}`}
                 onClick={() => setSortBy("heat")}
               >
-                <Flame size={12} /> 热度
+                <Flame size={12} /> {t.sortHeat}
               </button>
             </div>
 
@@ -169,7 +181,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
               className={`chip ${cat === c ? "active" : ""}`}
               onClick={() => setCat(c)}
             >
-              {c === "all" ? "全部频道" : CATEGORY_META[c].label}
+              {c === "all" ? t.allChannels : CAT_LABELS[lang][c]}
             </button>
           ))}
         </div>
@@ -177,7 +189,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
 
       {filtered.length === 0 ? (
         <div className="panel" style={{ textAlign: "center", padding: 48, color: "var(--text-3)" }}>
-          没有找到匹配当前条件的资讯，试试清空关键词或切换来源平台。
+          {t.noMatchingNews}
         </div>
       ) : (
         <div className="news-grid">

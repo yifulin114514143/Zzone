@@ -11,7 +11,9 @@ import {
   X,
 } from "lucide-react";
 import { REDEEM_CODES } from "../industry/codes";
+import { localizeCode } from "../industry/localizedData";
 import type { MerchItem, NewsItem, OfflineEvent } from "../industry/types";
+import { useI18n } from "../lib/i18n";
 import { formatSlashMD } from "../lib/time";
 
 interface GlobalSearchModalProps {
@@ -26,17 +28,6 @@ interface GlobalSearchModalProps {
   onCopyCode: (code: string) => void;
 }
 
-const HOT_KEYWORDS = [
-  "3.4",
-  "挽昼",
-  "知更鸟",
-  "杭州 FES",
-  "ZLIVE",
-  "雅迪联动",
-  "浮波柚叶",
-  "兑换码",
-];
-
 export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   open,
   news,
@@ -48,12 +39,26 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   onSelectMerch,
   onCopyCode,
 }) => {
+  const { lang, t } = useI18n();
   const [query, setQuery] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSummary, setAiSummary] = useState<{
+    query: string;
+    lang: string;
+    answer: string;
+    model?: string;
+    fromCache?: boolean;
+  } | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    setAiError(null);
+  }, [query, lang]);
+
+  useEffect(() => {
     if (!open) return;
-    const t = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       inputRef.current?.focus();
     }, 40);
     const onKey = (e: KeyboardEvent) => {
@@ -61,10 +66,15 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     };
     window.addEventListener("keydown", onKey);
     return () => {
-      window.clearTimeout(t);
+      window.clearTimeout(timer);
       window.removeEventListener("keydown", onKey);
     };
   }, [open, onClose]);
+
+  const localizedCodes = useMemo(
+    () => REDEEM_CODES.map((c) => localizeCode(c, lang)),
+    [lang]
+  );
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -73,7 +83,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
         news: [] as NewsItem[],
         events: [] as OfflineEvent[],
         merch: [] as MerchItem[],
-        codes: [] as typeof REDEEM_CODES,
+        codes: [] as typeof localizedCodes,
       };
     }
 
@@ -103,11 +113,11 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
           )
         )
         .slice(0, 4),
-      codes: REDEEM_CODES.filter((c) =>
-        matches(`兑换码 菲林 ${c.code} ${c.rewards} ${c.note} ${c.region}`)
+      codes: localizedCodes.filter((c) =>
+        matches(`兑换码 交換コード 리딤코드 code codes polychrome 菲林 ${c.code} ${c.rewards} ${c.note} ${c.regionLabel}`)
       ),
     };
-  }, [query, news, events, merch]);
+  }, [query, news, events, merch, localizedCodes]);
 
   if (!open) return null;
 
@@ -117,12 +127,61 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     results.merch.length +
     results.codes.length;
 
+  const handleAskAiSummary = async () => {
+    const q = query.trim();
+    if (!q || aiLoading) return;
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const items = [
+        ...results.events.map((e) => ({
+          kind: t.groupEvents,
+          title: e.title,
+          meta: `${e.city} · ${e.dateRange} · ${e.venue}`,
+          excerpt: e.subtitle,
+        })),
+        ...results.merch.map((m) => ({
+          kind: t.groupMerch,
+          title: m.name,
+          meta: `${m.priceText} · ${m.releaseDate}`,
+          excerpt: m.summary,
+        })),
+        ...results.news.map((n) => ({
+          kind: t.groupNews,
+          title: n.title,
+          meta: `${n.source} · ${formatSlashMD(n.publishedAt)}`,
+          excerpt: n.summary,
+        })),
+      ];
+      const res = await fetch("/api/ai/search-summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q, lang, items }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || "AI summary failed");
+      }
+      setAiSummary({
+        query: q,
+        lang,
+        answer: json.answer,
+        model: json.model,
+        fromCache: json.fromCache,
+      });
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : "LLM unavailable");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div
       className="modal-backdrop"
       role="dialog"
       aria-modal="true"
-      aria-label="Zzone 全站聚合搜索"
+      aria-label={t.searchAria}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -135,7 +194,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="搜索官方资讯、线下 FES/联动活动、米游铺周边、兑换码..."
+            placeholder={t.searchPlaceholder}
             className="search-modal-input"
           />
           {query && (
@@ -143,7 +202,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
               type="button"
               className="icon-btn"
               style={{ width: 28, height: 28 }}
-              aria-label="清空搜索词"
+              aria-label="Clear"
               onClick={() => setQuery("")}
             >
               <X size={14} />
@@ -154,7 +213,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             type="button"
             className="icon-btn"
             style={{ width: 32, height: 32 }}
-            aria-label="关闭搜索弹窗"
+            aria-label="Close"
             onClick={onClose}
           >
             <X size={16} />
@@ -167,10 +226,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
               <div>
                 <div className="search-group-title">
                   <Flame size={13} color="var(--brand-text)" />
-                  近期热门关键词
+                  {t.hotKeywordsTitle}
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
-                  {HOT_KEYWORDS.map((kw) => (
+                  {t.hotKeywords.map((kw) => (
                     <button
                       key={kw}
                       type="button"
@@ -196,8 +255,8 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                   gap: 8,
                 }}
               >
-                <span>支持多词空格组合检索（例如：杭州 FES、雅迪 周边）</span>
-                <span className="mono">快捷键 ⌘K / Ctrl+K / /</span>
+                <span>{t.searchTip}</span>
+                <span className="mono">⌘K / Ctrl+K / /</span>
               </div>
             </div>
           )}
@@ -205,21 +264,60 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
           {query.trim() && totalHits === 0 && (
             <div style={{ textAlign: "center", padding: "36px 12px", color: "var(--text-3)" }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-2)" }}>
-                没有找到与「{query}」直接相关的内容
+                {t.noSearchHits(query)}
               </div>
-              <div style={{ fontSize: 12.5, marginTop: 6 }}>
-                试试搜索：3.4、杭州 FES、ZLIVE、雅迪联动、浮波柚叶、兑换码
-              </div>
+              <div style={{ fontSize: 12.5, marginTop: 6 }}>{t.searchTryHint}</div>
             </div>
           )}
 
           {query.trim() && totalHits > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  borderRadius: 14,
+                  background: "var(--bg-subtle)",
+                  border: "1px solid var(--brand-border)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 800, color: "var(--brand-text)" }}>
+                    <Sparkles size={13} />
+                    {t.aiBriefTitle}
+                  </span>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    style={{ height: 30, padding: "0 12px", fontSize: 12 }}
+                    disabled={aiLoading}
+                    onClick={handleAskAiSummary}
+                  >
+                    {aiLoading ? t.aiBriefLoading : t.aiBriefBtn}
+                  </button>
+                </div>
+                {aiError && <div style={{ fontSize: 12, color: "var(--rose)" }}>{aiError}</div>}
+                {aiSummary && aiSummary.query === query.trim() && aiSummary.lang === lang && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                    <div style={{ fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.65 }}>
+                      {aiSummary.answer}
+                    </div>
+                    <div className="mono" style={{ fontSize: 11, color: "var(--text-3)" }}>
+                      {t.aiModelPrefix}
+                      {aiSummary.model || "cn:deepseek-v4.1-flash"}
+                      {aiSummary.fromCache ? t.aiCacheHitTag : t.aiLiveTag}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {results.events.length > 0 && (
                 <div>
                   <div className="search-group-title">
                     <CalendarHeart size={13} color="var(--violet)" />
-                    线下与联动活动 ({results.events.length})
+                    {t.groupEvents} ({results.events.length})
                   </div>
                   <div className="search-result-list">
                     {results.events.map((ev) => (
@@ -239,7 +337,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                             {ev.city} · {ev.dateRange} · {ev.venue}
                           </span>
                         </div>
-                        <span className="search-row-action">看多图 →</span>
+                        <span className="search-row-action">{t.actionPhotos}</span>
                       </button>
                     ))}
                   </div>
@@ -250,7 +348,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 <div>
                   <div className="search-group-title">
                     <ShoppingBag size={13} color="var(--brand-text)" />
-                    官方周边与联名商品 ({results.merch.length})
+                    {t.groupMerch} ({results.merch.length})
                   </div>
                   <div className="search-result-list">
                     {results.merch.map((m) => (
@@ -267,10 +365,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                         <div className="search-row-main">
                           <strong>{m.name}</strong>
                           <span className="search-row-sub">
-                            {m.series} · {m.priceText} · 共 {m.gallery.length} 张展示图
+                            {m.series} · {m.priceText} · {t.photosCount(m.gallery.length)}
                           </span>
                         </div>
-                        <span className="search-row-action">商品详情 →</span>
+                        <span className="search-row-action">{t.actionDetail}</span>
                       </button>
                     ))}
                   </div>
@@ -281,7 +379,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 <div>
                   <div className="search-group-title">
                     <Newspaper size={13} color="var(--sky)" />
-                    官方与社区资讯 ({results.news.length})
+                    {t.groupNews} ({results.news.length})
                   </div>
                   <div className="search-result-list">
                     {results.news.map((n) => (
@@ -303,7 +401,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                             {n.source} · {formatSlashMD(n.publishedAt)}
                           </span>
                         </div>
-                        <span className="search-row-action">阅读 →</span>
+                        <span className="search-row-action">{t.actionRead}</span>
                       </button>
                     ))}
                   </div>
@@ -314,7 +412,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 <div>
                   <div className="search-group-title">
                     <Ticket size={13} color="var(--brand-text)" />
-                    可用兑换码 ({results.codes.length})
+                    {t.groupCodes} ({results.codes.length})
                   </div>
                   <div className="search-result-list">
                     {results.codes.map((c) => (
@@ -332,11 +430,11 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                             {c.code}
                           </strong>
                           <span className="search-row-sub">
-                            {c.rewards} · {c.region}
+                            {c.rewards} · {c.regionLabel}
                           </span>
                         </div>
                         <span className="search-row-action">
-                          <Copy size={12} /> 复制
+                          <Copy size={12} /> {t.actionCopy}
                         </span>
                       </button>
                     ))}

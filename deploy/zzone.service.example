@@ -1,0 +1,28 @@
+# 适用于 1.7G 内存轻量云服务器（免 Docker，直接 Node 运行，常驻内存约 45MB）
+# 使用方法：
+#   sudo cp deploy/zzone.service.example /etc/systemd/system/zzone.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now zzone
+
+[Unit]
+Description=Zzone Zenless Zone Zero Real-time Aggregator
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/zzone
+ExecStart=/usr/bin/node /opt/zzone/server/index.mjs
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+Environment=TZ=Asia/Shanghai
+# 部署到与号池同机时，直接走回环零延迟、零流量费：
+Environment=LLM_BASE_URL=http://127.0.0.1:7863/v1
+# 每日 LLM 安全调用上限（防止被公网恶意刷余额）
+Environment=LLM_DAILY_LIMIT=120
+# 保护 POST /api/v1/ingest 的密钥（建议修改为随机字符串）
+# Environment=INGEST_TOKEN=replace-with-strong-random-token
+
+[Install]
+WantedBy=multi-user.target

@@ -1,7 +1,7 @@
 {
   "name": "zlesszone-interknot-hot",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 5173 --host 127.0.0.1",
@@ -9,6 +9,7 @@
     "preview": "vite preview --port 4173 --host 127.0.0.1",
     "start": "node server/index.mjs",
     "sync:official": "node scripts/sync-official.mjs",
+    "backup": "node scripts/release-backup.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

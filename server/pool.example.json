@@ -1,47 +1,37 @@
 {
-  "_comment": "复制本文件为 server/pool.json（已在 .gitignore 忽略）或设置环境变量 ACCOUNT_POOL_JSON，即可无缝接入多平台号池进行实时增量抓取与 AI 摘要。",
+  "_comment": "复制本文件为 server/pool.json（已在 .gitignore 忽略，绝不泄露给前端或仓库）。上线杭州同机时 baseUrl 改为 http://127.0.0.1:7863/v1。",
   "accounts": [
     {
-      "id": "mys-01",
-      "platform": "miyoushe",
-      "label": "米游社采集号-01",
+      "id": "llm-01",
+      "platform": "llm",
+      "label": "WorkBuddy 号池 · dsv4.1-flash",
       "enabled": true,
-      "rateLimitPerMin": 20,
+      "rateLimitPerMin": 60,
       "credentials": {
-        "cookie": "ltuid_v2=xxx; ltoken_v2=xxx;"
+        "baseUrl": "http://127.0.0.1:7863/v1",
+        "apiKey": "YOUR_POOL_API_KEY",
+        "model": "cn:deepseek-v4.1-flash"
       }
     },
     {
       "id": "x-01",
       "platform": "x",
-      "label": "X/Twitter 情报号-01",
-      "enabled": true,
+      "label": "X/Twitter 情报号-01（可选）",
+      "enabled": false,
       "rateLimitPerMin": 15,
       "credentials": {
         "authToken": "YOUR_X_AUTH_TOKEN",
         "ct0": "YOUR_X_CT0"
-      },
-      "proxy": "http://127.0.0.1:7890"
+      }
     },
     {
       "id": "bili-01",
       "platform": "bilibili",
-      "label": "B站动态号-01",
-      "enabled": true,
+      "label": "B站动态号-01（可选）",
+      "enabled": false,
       "rateLimitPerMin": 25,
       "credentials": {
         "sessdata": "YOUR_SESSDATA"
-      }
-    },
-    {
-      "id": "llm-01",
-      "platform": "llm",
-      "label": "AI 评分/翻译/归组模型",
-      "enabled": true,
-      "credentials": {
-        "baseUrl": "https://api.deepseek.com/v1",
-        "apiKey": "sk-xxxx",
-        "model": "deepseek-chat"
       }
     }
   ]

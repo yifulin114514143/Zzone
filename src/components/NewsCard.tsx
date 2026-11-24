@@ -3,6 +3,7 @@ import { Bookmark, Flame } from "lucide-react";
 import { CATEGORY_META } from "../industry/site";
 import type { NewsItem } from "../industry/types";
 import { hexAlpha } from "../lib/color";
+import { CAT_LABELS, useI18n } from "../lib/i18n";
 import { formatSlashMD, getCountdown } from "../lib/time";
 import { SourceBadge } from "./SourceIcon";
 
@@ -21,7 +22,9 @@ export const NewsCard: React.FC<NewsCardProps> = ({
   onOpen,
   onToggleBookmark,
 }) => {
+  const { lang, t } = useI18n();
   const cat = CATEGORY_META[item.category];
+  const catLabel = CAT_LABELS[lang][item.category] || cat.label;
   const cd = item.deadlineAt ? getCountdown(item.deadlineAt) : null;
 
   return (
@@ -39,7 +42,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
                 ZZONE · {cat.stamp}
               </div>
               <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: "-0.02em" }}>
-                {cat.label}
+                {catLabel}
               </div>
               <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>{item.source}</div>
             </div>
@@ -49,7 +52,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
         <div className="media-overlay-top">
           <span className="cat-pill">
             <span className="cat-dot" style={{ "--cc": cat.color } as React.CSSProperties} />
-            {cat.label}
+            {catLabel}
           </span>
           <button
             type="button"
@@ -58,7 +61,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
               e.stopPropagation();
               onToggleBookmark(item.id);
             }}
-            aria-label={isBookmarked ? "取消收藏" : "收藏"}
+            aria-label={isBookmarked ? t.toastUnbookmarked : t.toastBookmarked}
           >
             <Bookmark size={14} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
@@ -84,15 +87,13 @@ export const NewsCard: React.FC<NewsCardProps> = ({
         <div className="news-foot">
           <span className="heat-pill">
             <Flame size={13} />
-            {item.heat} 热度
+            {item.heat} {t.heatLabel}
           </span>
 
           {cd && !cd.expired ? (
-            <span className="deadline-tag">
-              {item.deadlineLabel || "截止"} · 剩 {cd.days} 天
-            </span>
+            <span className="deadline-tag">{t.daysLeft(cd.days)}</span>
           ) : (
-            <span className="mono">{item.sourceCount} 处信源提及</span>
+            <span className="mono">{t.sourcesMentioned(item.sourceCount)}</span>
           )}
         </div>
       </div>

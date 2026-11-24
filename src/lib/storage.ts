@@ -1,9 +1,32 @@
+import type { AppLang } from "./i18n";
+
 const BOOKMARKS_KEY = "zz:bookmarks";
 const READ_KEY = "zz:read";
 const WISHLIST_KEY = "zz:merch-wishlist";
 const THEME_KEY = "zz:theme";
+const LANG_KEY = "zz:lang";
 
 export type ThemeMode = "dark" | "light";
+
+export function loadLang(): AppLang {
+  try {
+    const v = localStorage.getItem(LANG_KEY);
+    if (v === "zh" || v === "ja" || v === "ko" || v === "en") return v;
+  } catch {
+    // ignore
+  }
+  return "zh";
+}
+
+export function saveLang(lang: AppLang) {
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+  } catch {
+    // ignore
+  }
+  const map: Record<AppLang, string> = { zh: "zh-CN", ja: "ja", ko: "ko", en: "en" };
+  document.documentElement.setAttribute("lang", map[lang]);
+}
 
 export function loadTheme(): ThemeMode {
   try {

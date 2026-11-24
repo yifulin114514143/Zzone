@@ -64,12 +64,12 @@ export const MERCH_ITEMS: MerchItem[] = [
     characterOrFaction: "全阵营 · 2026 FES 嘉年华",
     factionId: "new-eridu",
     coverUrl:
-      "https://fastcdn.mihoyo.com/content-v2/nap/167278/16fc1fb7ec4b0cac34a921462e5b0867_6036791350589326514.png",
+      "https://upload-bbs.miyoushe.com/upload/2026/11/17/152039148/4e5fb677e199db5e896c1375b3f7ba11_7935106176088897786.png",
     gallery: [
-      "https://fastcdn.mihoyo.com/content-v2/nap/167278/16fc1fb7ec4b0cac34a921462e5b0867_6036791350589326514.png",
-      "https://fastcdn.mihoyo.com/content-v2/nap/167279/61397275302f0b32a00e892ebdeae74a_5838454845078076891.png",
+      "https://upload-bbs.miyoushe.com/upload/2026/11/17/152039148/4e5fb677e199db5e896c1375b3f7ba11_7935106176088897786.png",
       "https://fastcdn.mihoyo.com/content-v2/nap/167278/901f29967b14e0b53809d6801e59bf20_7070947551218645943.png",
       "https://fastcdn.mihoyo.com/content-v2/nap/167278/d48489596be1fca4fce430dba2f2b3e4_7498704066765419247.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/167278/16fc1fb7ec4b0cac34a921462e5b0867_6036791350589326514.png",
     ],
     accent: "#ff5a1f",
     specs: [
@@ -137,10 +137,10 @@ export const MERCH_ITEMS: MerchItem[] = [
     characterOrFaction: "维多利亚家政 · 艾莲 / 莱卡恩 / 邦布",
     factionId: "victoria",
     coverUrl:
-      "https://fastcdn.mihoyo.com/content-v2/nap/165174/f597e97041402ce90be830a08de927d4_6370811728131673146.png",
-    gallery: [
-      "https://fastcdn.mihoyo.com/content-v2/nap/165174/f597e97041402ce90be830a08de927d4_6370811728131673146.png",
       "https://fastcdn.mihoyo.com/content-v2/nap/165174/fff761a060f587272f2e9b63abbdd163_4338606689991492916.png",
+    gallery: [
+      "https://fastcdn.mihoyo.com/content-v2/nap/165174/fff761a060f587272f2e9b63abbdd163_4338606689991492916.png",
+      "https://fastcdn.mihoyo.com/content-v2/nap/165174/f597e97041402ce90be830a08de927d4_6370811728131673146.png",
     ],
     accent: "#38bdf8",
     specs: [
@@ -461,9 +461,9 @@ export const MERCH_ITEMS: MerchItem[] = [
     characterOrFaction: "挽昼 / 知更鸟 / 帕姆邦布",
     factionId: "hsr-collab",
     coverUrl:
-      "https://fastcdn.hoyoverse.com/content-v2/nap/167400/29b97129ab47b08d41f7e79b03e0db31_1702952051770016417.jpg",
+      "https://upload-bbs.miyoushe.com/upload/2026/11/20/152039148/93f0ea8d380d96a65b4438066f738a30_1204876260405038485.png",
     gallery: [
-      "https://fastcdn.hoyoverse.com/content-v2/nap/167400/29b97129ab47b08d41f7e79b03e0db31_1702952051770016417.jpg",
+      "https://upload-bbs.miyoushe.com/upload/2026/11/20/152039148/93f0ea8d380d96a65b4438066f738a30_1204876260405038485.png",
       "https://fastcdn.hoyoverse.com/content-v2/nap/167399/5ca06f8ee94e9dfd01595647fe684070_7827867598926710814.jpg",
       "https://fastcdn.hoyoverse.com/content-v2/nap/167399/2bb0de57a8166a944a00b02659629a1c_6641336391535077536.jpg",
     ],

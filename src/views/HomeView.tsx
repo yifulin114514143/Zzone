@@ -19,9 +19,17 @@ import type {
   OfflineEvent,
   SourcePlatformKey,
 } from "../industry/types";
+import { MERCH_CADENCE_LABELS, useI18n } from "../lib/i18n";
+import {
+  partitionAndSortEvents,
+  pickDiverseHomeNews,
+  sortMerchByPriority,
+  sortNewsByPriority,
+} from "../lib/ranking";
 import { formatSlashMD } from "../lib/time";
 import { LiveCountdownGrid } from "../components/LiveCountdownGrid";
 import { NewsCard } from "../components/NewsCard";
+import { RedeemCodesStrip } from "../components/RedeemCodesBar";
 import { SourceBadge } from "../components/SourceIcon";
 
 interface HomeViewProps {
@@ -33,6 +41,8 @@ interface HomeViewProps {
   onOpenItem: (item: NewsItem) => void;
   onOpenEvent: (ev: OfflineEvent) => void;
   onOpenMerch: (item: MerchItem) => void;
+  onCopyCode: (code: string) => void;
+  onOpenCodes: () => void;
   onToggleBookmark: (id: string) => void;
   onNavigate: (tab: NavTab) => void;
 }
@@ -58,16 +68,21 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenItem,
   onOpenEvent,
   onOpenMerch,
+  onCopyCode,
+  onOpenCodes,
   onToggleBookmark,
   onNavigate,
 }) => {
+  const { lang, t } = useI18n();
   const [slideIdx, setSlideIdx] = useState(0);
   const [dockCountdownMode, setDockCountdownMode] = useState<"fes" | "v34">("fes");
 
-  const v34News = news.find((n) => n.id === "official-167400") ?? news[0];
+  const v34News =
+    news.find((n) => n.id.includes("167400")) ??
+    news.find((n) => /3\.4|长日终尽|ついには長き|긴 나날의 끝자락|Finality/i.test(n.title)) ??
+    news[0];
   const hzFesEvent = events.find((e) => e.id === "ev-hz-fes-2026");
   const zliveEvent = events.find((e) => e.id === "ev-zlive-2026");
-  const hsrCollabEvent = events.find((e) => e.id === "ev-v34-hsr-collab");
 
   const heroSlides = useMemo<HeroFeatureSlide[]>(() => {
     const slides: HeroFeatureSlide[] = [];
@@ -75,15 +90,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
     if (v34News) {
       slides.push({
         id: "hero-v34",
-        tag: "即将上线 · 3.4 新版本",
-        source: "hoyoverse",
-        dateLabel: "2026/12/02 正式更新",
-        title: "3.4 新版本「长日终尽」：首位结使虚狩「挽昼」登场，星铁联动「知更鸟」登录即领",
-        summary:
-          "12月2日重磅上线！登录免费领联动 S 级限定「知更鸟」及推荐主属性定制驱动盘，累计签到再领 10 加密母带 + 10 邦布券 + 2320 菲林 + 全新免费邦布「帕姆」。",
+        tag: t.heroV34Tag,
+        source: lang === "ja" ? "zzz-jp" : "hoyoverse",
+        dateLabel: t.heroV34Date,
+        title: t.heroV34Title,
+        summary: t.heroV34Summary,
         coverUrl:
-          "https://fastcdn.hoyoverse.com/content-v2/nap/167400/29b97129ab47b08d41f7e79b03e0db31_1702952051770016417.jpg",
-        ctaLabel: "查看 3.4 福利与前瞻总览",
+          "https://upload-bbs.miyoushe.com/upload/2026/11/20/152039148/ddfd51de59193228f2908db0117219c8_5852735675604532366.png",
+        ctaLabel: t.heroV34Cta,
         onClick: () => onOpenItem(v34News),
       });
     }
@@ -91,13 +105,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
     if (hzFesEvent) {
       slides.push({
         id: "hero-fes",
-        tag: "即将开馆 · 年度盛会 FES",
+        tag: t.heroFesTag,
         source: "zzz-cn",
         dateLabel: `${hzFesEvent.city} · ${hzFesEvent.dateRange}`,
         title: hzFesEvent.title,
         summary: hzFesEvent.subtitle,
         coverUrl: hzFesEvent.coverUrl,
-        ctaLabel: "查看杭州 FES 6 张官方情报图",
+        ctaLabel: t.heroFesCta,
         onClick: () => onOpenEvent(hzFesEvent),
       });
     }
@@ -105,86 +119,81 @@ export const HomeView: React.FC<HomeViewProps> = ({
     if (zliveEvent) {
       slides.push({
         id: "hero-zlive",
-        tag: "即将开唱 · Zenless LIVE 2026",
+        tag: t.heroZliveTag,
         source: "bilibili",
         dateLabel: `${zliveEvent.city} · ${zliveEvent.dateRange}`,
         title: zliveEvent.title,
         summary: zliveEvent.subtitle,
         coverUrl: zliveEvent.coverUrl,
-        ctaLabel: "查看 ZLIVE 演出与购票详情",
+        ctaLabel: t.heroZliveCta,
         onClick: () => onOpenEvent(zliveEvent),
       });
     }
 
-    if (hsrCollabEvent) {
-      slides.push({
-        id: "hero-collab",
-        tag: "最新跨界联动 · 即将开启",
-        source: "x",
-        dateLabel: `${hsrCollabEvent.city} · ${hsrCollabEvent.dateRange}`,
-        title: hsrCollabEvent.title,
-        summary: hsrCollabEvent.subtitle,
-        coverUrl: hsrCollabEvent.coverUrl,
-        ctaLabel: "查看最新联动与限定周边",
-        onClick: () => onOpenEvent(hsrCollabEvent),
-      });
-    }
-
     return slides;
-  }, [v34News, hzFesEvent, zliveEvent, hsrCollabEvent, onOpenItem, onOpenEvent]);
+  }, [lang, t, v34News, hzFesEvent, zliveEvent, onOpenItem, onOpenEvent]);
 
   useEffect(() => {
     if (heroSlides.length <= 1) return;
-    const t = window.setInterval(() => {
+    const timer = window.setInterval(() => {
       setSlideIdx((i) => (i + 1) % heroSlides.length);
     }, 6500);
-    return () => window.clearInterval(t);
+    return () => window.clearInterval(timer);
   }, [heroSlides.length]);
 
   const activeSlide = heroSlides[slideIdx % Math.max(1, heroSlides.length)];
 
-  // Strictly ONLY upcoming / open events on Home (no archived past events)
-  const upcomingEventsOnly = useMemo(
-    () => events.filter((e) => e.status !== "archive").slice(0, 4),
+  const { active: sortedActiveEvents } = useMemo(
+    () => partitionAndSortEvents(events),
     [events]
   );
+  const upcomingEventsOnly = useMemo(
+    () => sortedActiveEvents.slice(0, 4),
+    [sortedActiveEvents]
+  );
+  const freshMerchOnly = useMemo(() => {
+    const sorted = sortMerchByPriority(merch);
+    // Prefer real product photography on the Discover page; keep preview-only placeholder on the Merch tab
+    const withRealPhotos = sorted.filter((m) => m.id !== "merch-v34-bundle");
+    return (withRealPhotos.length >= 3 ? withRealPhotos : sorted).slice(0, 3);
+  }, [merch]);
 
-  // Strictly freshest / upcoming merch drops with full real multi-image galleries
-  const freshMerchOnly = useMemo(
-    () =>
-      merch
-        .filter(
-          (m) =>
-            m.saleStatus === "coming_soon" ||
-            m.cadence === "fes_drop" ||
-            m.cadence === "version_drop" ||
-            m.id === "merch-yadea-ebikes"
-        )
-        .slice(0, 3),
-    [merch]
+  const prioritizedNews = useMemo(() => sortNewsByPriority(news), [news]);
+
+  // Right-dock 3 headlines: diverse topics (no 3x identical Ver.3.4 lines)
+  const dockFeedHeadlines = useMemo(
+    () => pickDiverseHomeNews(prioritizedNews, [], 3),
+    [prioritizedNews]
   );
 
-  const latestNewsOnly = useMemo(() => news.slice(0, 6), [news]);
+  // Bottom 6 news cards: deduplicated across visual clusters AND never reusing Hero/Event/Merch cover art
+  const latestNewsOnly = useMemo(() => {
+    const usedCovers = [
+      ...heroSlides.map((s) => s.coverUrl),
+      ...upcomingEventsOnly.map((e) => e.coverUrl),
+      ...freshMerchOnly.map((m) => m.coverUrl),
+    ];
+    return pickDiverseHomeNews(prioritizedNews, usedCovers, 6);
+  }, [prioritizedNews, heroSlides, upcomingEventsOnly, freshMerchOnly]);
 
   const dockTarget =
     dockCountdownMode === "fes"
       ? {
-          title: "2026 杭州 FES「布梦嘉年华」& ZLIVE 专场",
+          title: t.cdFesTitle,
           at: "2026-11-27T09:30:00+08:00",
-          sub: "杭州大会展中心 4/5/6号馆",
+          sub: t.cdFesSub,
           onClick: () => (hzFesEvent ? onOpenEvent(hzFesEvent) : onNavigate("events")),
         }
       : {
-          title: "3.4「长日终尽」正式上线 · 登录送知更鸟",
+          title: t.cdV34Title,
           at: "2026-12-02T11:00:00+08:00",
-          sub: "首位结使虚狩「挽昼」+ 2320菲林 + 10连",
+          sub: t.cdV34Sub,
           onClick: () => v34News && onOpenItem(v34News),
         };
 
   return (
     <>
-      {/* 1. Hero Bento: Upcoming Blockbusters + Dual Milestone Countdown & Multi-Source Feed */}
-      <section className="hero-bento" aria-label="即将到来重磅聚焦">
+      <section className="hero-bento" aria-label="Featured Upcoming">
         {activeSlide && (
           <div className="hero-stage">
             <img
@@ -208,7 +217,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <button
                   type="button"
                   className="hero-arrow-btn"
-                  aria-label="上一条重磅"
+                  aria-label="Prev"
                   onClick={() =>
                     setSlideIdx((i) => (i - 1 + heroSlides.length) % heroSlides.length)
                   }
@@ -218,7 +227,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <button
                   type="button"
                   className="hero-arrow-btn"
-                  aria-label="下一条重磅"
+                  aria-label="Next"
                   onClick={() => setSlideIdx((i) => (i + 1) % heroSlides.length)}
                 >
                   <ChevronRight size={17} />
@@ -242,14 +251,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   {activeSlide.ctaLabel} <ArrowRight size={15} />
                 </button>
 
-                <div className="hero-dots" role="tablist" aria-label="切换重磅聚焦">
+                <div className="hero-dots" role="tablist">
                   {heroSlides.map((sl, idx) => (
                     <button
                       key={sl.id}
                       type="button"
                       className={`hero-dot ${idx === slideIdx % heroSlides.length ? "active" : ""}`}
                       onClick={() => setSlideIdx(idx)}
-                      aria-label={`切换到 ${sl.tag}`}
+                      aria-label={sl.tag}
                     />
                   ))}
                 </div>
@@ -271,7 +280,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   color: "var(--brand-text)",
                 }}
               >
-                <CalendarClock size={14} /> 两大重磅倒计时
+                <CalendarClock size={14} /> {t.dualCountdownTitle}
               </span>
               <div style={{ display: "inline-flex", gap: 4 }}>
                 <button
@@ -280,7 +289,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   style={{ padding: "3px 9px", fontSize: 11 }}
                   onClick={() => setDockCountdownMode("fes")}
                 >
-                  杭州 FES
+                  {t.cdTabFes}
                 </button>
                 <button
                   type="button"
@@ -288,7 +297,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   style={{ padding: "3px 9px", fontSize: 11 }}
                   onClick={() => setDockCountdownMode("v34")}
                 >
-                  3.4 新版本
+                  {t.cdTabV34}
                 </button>
               </div>
             </div>
@@ -312,7 +321,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 800 }}>
                 <span className="live-dot" />
-                官方多信源实时汇总
+                {t.multiSourceTitle}
               </span>
               <button
                 type="button"
@@ -320,7 +329,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 style={{ padding: "2px 8px", fontSize: 12 }}
                 onClick={() => onNavigate("hub")}
               >
-                号池状态 →
+                {t.poolStatusLink}
               </button>
             </div>
 
@@ -339,7 +348,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
 
             <div className="mini-feed-list" style={{ marginTop: 2 }}>
-              {news.slice(0, 3).map((item) => (
+              {dockFeedHeadlines.map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -355,15 +364,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 2. Upcoming Only: Annual FES / ZLIVE / Latest Collabs */}
-      <section aria-label="即将到来的大型活动与最新联动">
+      <RedeemCodesStrip onCopyCode={onCopyCode} onOpenModal={onOpenCodes} />
+
+      <section aria-label={t.homeUpcomingTitle}>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">UPCOMING ONLY · FES · ZLIVE · LATEST COLLABS</span>
-            <h2 className="section-title">即将到来：年度 FES、ZLIVE 与最新联动</h2>
+            <span className="section-kicker">{t.homeUpcomingKicker}</span>
+            <h2 className="section-title">{t.homeUpcomingTitle}</h2>
           </div>
           <button type="button" className="ghost-link" onClick={() => onNavigate("events")}>
-            查看全部活动 ({events.length}) <ArrowRight size={15} />
+            {t.viewAllEvents} ({events.length}) <ArrowRight size={15} />
           </button>
         </div>
 
@@ -372,7 +382,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <article key={ev.id} className="event-card">
               <div
                 className="merch-photo-wrap"
-                style={{ aspectRatio: "16 / 8.6" }}
+                style={{ aspectRatio: "16 / 9" }}
                 onClick={() => onOpenEvent(ev)}
               >
                 <img src={ev.coverUrl} alt={ev.title} loading="lazy" />
@@ -380,7 +390,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="media-overlay-top">
                   <span className={ev.official ? "badge-official" : "badge-unofficial"}>
                     {ev.official ? <ShieldCheck size={12} /> : <Users size={12} />}
-                    {ev.official ? "官方重磅" : "同人活动"}
+                    {ev.official ? t.officialMajorBadge : t.fanEventBadge}
                   </span>
                   <span className="badge-status">
                     {ev.city} · {ev.dateRange}
@@ -390,7 +400,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <SourceBadge platform={ev.sourcePlatform} />
                   {ev.gallery.length > 1 && (
                     <span className="photo-count-pill">
-                      <Images size={11} /> {ev.gallery.length} 张官方情报图
+                      <Images size={11} /> {t.photosCount(ev.gallery.length)}
                     </span>
                   )}
                 </div>
@@ -413,15 +423,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 3. Fresh Official & Collab Merch Drops */}
-      <section aria-label="最新官方与联名周边">
+      <section aria-label={t.homeMerchTitle}>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">LATEST MERCH & COLLAB GEAR</span>
-            <h2 className="section-title">最新周边上新与跨界联名</h2>
+            <span className="section-kicker">{t.homeMerchKicker}</span>
+            <h2 className="section-title">{t.homeMerchTitle}</h2>
           </div>
           <button type="button" className="ghost-link" onClick={() => onNavigate("merch")}>
-            进入周边上新 ({merch.length} 款) <ArrowRight size={15} />
+            {t.enterMerchLink(merch.length)} <ArrowRight size={15} />
           </button>
         </div>
 
@@ -436,10 +445,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     className={`cadence-pill ${MERCH_CADENCE_META[item.cadence].cssClass}`}
                     style={{ background: "rgba(11,12,17,0.78)", color: "#fff" }}
                   >
-                    {MERCH_CADENCE_META[item.cadence].label}
+                    {MERCH_CADENCE_LABELS[lang][item.cadence]}
                   </span>
                   <span className="photo-count-pill">
-                    <Images size={11} /> {item.gallery.length} 张详图
+                    <Images size={11} /> {t.photosCount(item.gallery.length)}
                   </span>
                 </div>
               </div>
@@ -466,7 +475,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     style={{ fontSize: 12, padding: "2px 6px" }}
                     onClick={() => onOpenMerch(item)}
                   >
-                    看多图详情 →
+                    {t.viewMultiPhoto}
                   </button>
                 </div>
               </div>
@@ -475,15 +484,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 4. Latest Important News */}
-      <section aria-label="最新官方与社区资讯">
+      <section aria-label={t.homeNewsTitle}>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">FRESH OFFICIAL UPDATES</span>
-            <h2 className="section-title">最新重要公告与版本动态</h2>
+            <span className="section-kicker">{t.homeNewsKicker}</span>
+            <h2 className="section-title">{t.homeNewsTitle}</h2>
           </div>
           <button type="button" className="ghost-link" onClick={() => onNavigate("feed")}>
-            全部 {news.length} 条资讯 <ArrowRight size={15} />
+            {t.allNewsLink(news.length)} <ArrowRight size={15} />
           </button>
         </div>
 

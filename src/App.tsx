@@ -1,20 +1,26 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUp } from "lucide-react";
+import { REDEEM_CODES } from "./industry/codes";
+import { localizeEvent, localizeMerch } from "./industry/localizedData";
 import { MERCH_ITEMS } from "./industry/merch";
 import { INITIAL_NEWS, OFFICIAL_SNAPSHOT_META } from "./industry/news";
 import { OFFLINE_EVENTS } from "./industry/offlineEvents";
 import type { MerchItem, NavTab, NewsItem, OfflineEvent } from "./industry/types";
 import { syncLiveOfficialNews } from "./lib/hoyoSync";
+import { LangContext, UI_DICT, type AppLang } from "./lib/i18n";
 import {
   loadIdSet,
+  loadLang,
   loadTheme,
   saveIdSet,
+  saveLang,
   saveTheme,
   storageKeys,
   type ThemeMode,
 } from "./lib/storage";
 import { ArticleModal } from "./components/ArticleModal";
 import { GlobalSearchModal } from "./components/GlobalSearchModal";
+import { RedeemCodesModal } from "./components/RedeemCodesBar";
 import { MobileDock, TopNav } from "./components/TopNav";
 import { EventsView } from "./views/EventsView";
 import { FeedView } from "./views/FeedView";
@@ -29,9 +35,33 @@ function getInitialTab(): NavTab {
   return VALID_TABS.includes(hash) ? hash : "home";
 }
 
+const MERCH_CHECK_TOAST: Record<AppLang, { ok: string; fallback: string; backTop: string }> = {
+  zh: {
+    ok: "已完成米游铺与天猫旗舰店定期上新巡检（当前均为最新）",
+    fallback: "已刷新周边列表（接入米游铺号池后将自动实时增量推送）",
+    backTop: "返回顶部",
+  },
+  ja: {
+    ok: "公式ストア・新作グッズの定期チェックが完了しました（最新状態です）",
+    fallback: "グッズ一覧を更新しました",
+    backTop: "トップへ戻る",
+  },
+  ko: {
+    ok: "공식 스토어 굿즈 신상 정기 점검을 완료했습니다 (최신 상태)",
+    fallback: "굿즈 목록을 새로고침했습니다",
+    backTop: "맨 위로",
+  },
+  en: {
+    ok: "Completed official merch drop check (all items are up to date)",
+    fallback: "Refreshed official merch catalog",
+    backTop: "Back to top",
+  },
+};
+
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>(() => getInitialTab());
   const [theme, setTheme] = useState<ThemeMode>(() => loadTheme());
+  const [lang, setLangState] = useState<AppLang>(() => loadLang());
   const [news, setNews] = useState<NewsItem[]>(INITIAL_NEWS);
   const [events, setEvents] = useState<OfflineEvent[]>(OFFLINE_EVENTS);
   const [merch, setMerch] = useState<MerchItem[]>(MERCH_ITEMS);
@@ -46,6 +76,7 @@ export const App: React.FC = () => {
   const [pendingMerchId, setPendingMerchId] = useState<string | null>(null);
 
   const [searchOpen, setSearchOpen] = useState(false);
+  const [codesModalOpen, setCodesModalOpen] = useState(false);
   const [showBackTop, setShowBackTop] = useState(false);
 
   const [bookmarks, setBookmarks] = useState<Set<string>>(() =>
@@ -56,13 +87,25 @@ export const App: React.FC = () => {
     loadIdSet(storageKeys.wishlist)
   );
   const [toast, setToast] = useState<string | null>(null);
+  const syncSeqRef = useRef(0);
+
+  const t = UI_DICT[lang];
 
   const showToast = useCallback((msg: string) => setToast(msg), []);
 
+  const setLang = useCallback((next: AppLang) => {
+    setLangState(next);
+  }, []);
+
+  useEffect(() => {
+    saveLang(lang);
+    document.title = UI_DICT[lang].docTitle;
+  }, [lang]);
+
   useEffect(() => {
     if (!toast) return;
-    const t = window.setTimeout(() => setToast(null), 2600);
-    return () => window.clearTimeout(t);
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
   }, [toast]);
 
   useEffect(() => {
@@ -106,10 +149,12 @@ export const App: React.FC = () => {
   }, []);
 
   const handleSync = useCallback(
-    async (silent = false) => {
+    async (targetLang: AppLang, silent = false, forceRefresh = false) => {
+      const seq = ++syncSeqRef.current;
       setIsSyncing(true);
       try {
-        const res = await syncLiveOfficialNews();
+        const res = await syncLiveOfficialNews(targetLang, forceRefresh);
+        if (seq !== syncSeqRef.current) return;
         setNews(res.items);
         setSyncedAt(res.syncedAt);
 
@@ -149,18 +194,26 @@ export const App: React.FC = () => {
 
         if (!silent) showToast(res.message);
       } finally {
-        setIsSyncing(false);
+        if (seq === syncSeqRef.current) {
+          setIsSyncing(false);
+        }
       }
     },
     [showToast]
   );
 
+  // Sync language-matched official feeds on boot & whenever the user switches language
   useEffect(() => {
-    handleSync(true);
-  }, [handleSync]);
+    handleSync(lang, true, false);
+  }, [lang, handleSync]);
+
+  const handleManualSync = useCallback(() => {
+    handleSync(lang, false, true);
+  }, [lang, handleSync]);
 
   const handleCheckMerch = useCallback(async () => {
     setIsCheckingMerch(true);
+    const copy = MERCH_CHECK_TOAST[lang];
     try {
       const res = await fetch("/api/v1/merch");
       if (res.ok) {
@@ -175,18 +228,18 @@ export const App: React.FC = () => {
             return additions.length ? [...additions, ...prev] : prev;
           });
         }
-        showToast("已完成米游铺与天猫旗舰店定期上新巡检（当前均为最新）");
+        showToast(copy.ok);
       } else {
         setMerchCheckedAt(new Date().toISOString());
-        showToast("已刷新周边列表（接入米游铺号池后将自动实时增量推送）");
+        showToast(copy.fallback);
       }
     } catch {
       setMerchCheckedAt(new Date().toISOString());
-      showToast("已刷新本地周边档案（接入米游铺号池后可自动实时拉取）");
+      showToast(copy.fallback);
     } finally {
       setIsCheckingMerch(false);
     }
-  }, [showToast]);
+  }, [lang, showToast]);
 
   const handleToggleTheme = useCallback(
     (next: ThemeMode, ev: React.MouseEvent) => {
@@ -214,16 +267,16 @@ export const App: React.FC = () => {
         const next = new Set(prev);
         if (next.has(id)) {
           next.delete(id);
-          showToast("已取消收藏");
+          showToast(t.toastUnbookmarked);
         } else {
           next.add(id);
-          showToast("已加入本地收藏");
+          showToast(t.toastBookmarked);
         }
         saveIdSet(storageKeys.bookmarks, next);
         return next;
       });
     },
-    [showToast]
+    [showToast, t.toastBookmarked, t.toastUnbookmarked]
   );
 
   const handleToggleWish = useCallback(
@@ -232,16 +285,16 @@ export const App: React.FC = () => {
         const next = new Set(prev);
         if (next.has(id)) {
           next.delete(id);
-          showToast("已移出周边心愿单");
+          showToast(t.toastUnwished);
         } else {
           next.add(id);
-          showToast("已加入周边心愿单");
+          showToast(t.toastWished);
         }
         saveIdSet(storageKeys.wishlist, next);
         return next;
       });
     },
-    [showToast]
+    [showToast, t.toastUnwished, t.toastWished]
   );
 
   const handleOpenItem = useCallback((item: NewsItem) => {
@@ -279,26 +332,43 @@ export const App: React.FC = () => {
     async (code: string) => {
       try {
         await navigator.clipboard.writeText(code);
-        showToast(`已复制兑换码：${code}`);
+        showToast(t.toastCodeCopied(code));
       } catch {
-        showToast(`兑换码：${code}`);
+        showToast(t.toastCodeCopied(code));
       }
     },
-    [showToast]
+    [showToast, t]
+  );
+
+  const localizedEvents = useMemo(
+    () => events.map((e) => localizeEvent(e, lang)),
+    [events, lang]
+  );
+  const localizedMerch = useMemo(
+    () => merch.map((m) => localizeMerch(m, lang)),
+    [merch, lang]
   );
 
   const liveCount = useMemo(() => news.filter((n) => n.isLiveOfficial).length, [news]);
+  const activeCodeCount = useMemo(
+    () => REDEEM_CODES.filter((c) => c.status !== "expired").length,
+    []
+  );
+
+  const langCtx = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
 
   return (
-    <>
+    <LangContext.Provider value={langCtx}>
       <TopNav
         activeTab={activeTab}
         onNavigate={navigate}
         bookmarkCount={bookmarks.size}
+        activeCodeCount={activeCodeCount}
         liveCount={liveCount}
         isSyncing={isSyncing}
-        onSync={() => handleSync(false)}
+        onSync={handleManualSync}
         onOpenSearch={() => setSearchOpen(true)}
+        onOpenCodes={() => setCodesModalOpen(true)}
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />
@@ -307,13 +377,15 @@ export const App: React.FC = () => {
         {activeTab === "home" && (
           <HomeView
             news={news}
-            events={events}
-            merch={merch}
+            events={localizedEvents}
+            merch={localizedMerch}
             bookmarks={bookmarks}
             readIds={readIds}
             onOpenItem={handleOpenItem}
             onOpenEvent={handleOpenEventDirect}
             onOpenMerch={handleOpenMerchDirect}
+            onCopyCode={handleCopyCode}
+            onOpenCodes={() => setCodesModalOpen(true)}
             onToggleBookmark={handleToggleBookmark}
             onNavigate={navigate}
           />
@@ -325,15 +397,17 @@ export const App: React.FC = () => {
             bookmarks={bookmarks}
             readIds={readIds}
             isSyncing={isSyncing}
-            onSync={() => handleSync(false)}
+            onSync={handleManualSync}
             onOpenItem={handleOpenItem}
+            onCopyCode={handleCopyCode}
+            onOpenCodes={() => setCodesModalOpen(true)}
             onToggleBookmark={handleToggleBookmark}
           />
         )}
 
         {activeTab === "events" && (
           <EventsView
-            events={events}
+            events={localizedEvents}
             initialEventId={pendingEventId}
             onClearInitialEvent={() => setPendingEventId(null)}
             onSubmitEvent={handleSubmitEvent}
@@ -343,7 +417,7 @@ export const App: React.FC = () => {
 
         {activeTab === "merch" && (
           <MerchView
-            items={merch}
+            items={localizedMerch}
             wishlist={wishlist}
             lastCheckedAt={merchCheckedAt}
             isChecking={isCheckingMerch}
@@ -361,7 +435,8 @@ export const App: React.FC = () => {
             readIds={readIds}
             syncedAt={syncedAt}
             isSyncing={isSyncing}
-            onSync={() => handleSync(false)}
+            onSync={handleManualSync}
+            onApplyNews={setNews}
             onOpenItem={handleOpenItem}
             onToggleBookmark={handleToggleBookmark}
             onNotify={showToast}
@@ -375,8 +450,8 @@ export const App: React.FC = () => {
         <button
           type="button"
           className="back-to-top-btn"
-          aria-label="返回顶部"
-          title="返回顶部"
+          aria-label={MERCH_CHECK_TOAST[lang].backTop}
+          title={MERCH_CHECK_TOAST[lang].backTop}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <ArrowUp size={17} />
@@ -386,12 +461,18 @@ export const App: React.FC = () => {
       <GlobalSearchModal
         open={searchOpen}
         news={news}
-        events={events}
-        merch={merch}
+        events={localizedEvents}
+        merch={localizedMerch}
         onClose={() => setSearchOpen(false)}
         onSelectNews={handleOpenItem}
         onSelectEvent={handleOpenEventDirect}
         onSelectMerch={handleOpenMerchDirect}
+        onCopyCode={handleCopyCode}
+      />
+
+      <RedeemCodesModal
+        open={codesModalOpen}
+        onClose={() => setCodesModalOpen(false)}
         onCopyCode={handleCopyCode}
       />
 
@@ -409,7 +490,7 @@ export const App: React.FC = () => {
           <span>{toast}</span>
         </div>
       )}
-    </>
+    </LangContext.Provider>
   );
 };
 
