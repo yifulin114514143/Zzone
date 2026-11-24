@@ -84,6 +84,7 @@ export const RedeemCodesModal: React.FC<RedeemCodesModalProps> = ({
   onCopyCode,
 }) => {
   const { lang, t } = useI18n();
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -95,6 +96,17 @@ export const RedeemCodesModal: React.FC<RedeemCodesModalProps> = ({
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const copiedLabel =
+    lang === "zh" ? "已复制" : lang === "ja" ? "コピー済" : lang === "ko" ? "복사됨" : "Copied";
+
+  const handleModalCopy = (code: string) => {
+    onCopyCode(code);
+    setCopiedCode(code);
+    window.setTimeout(() => {
+      setCopiedCode((prev) => (prev === code ? null : prev));
+    }, 1600);
+  };
 
   const activeCodes = REDEEM_CODES.filter((c) => c.status !== "expired").map((c) =>
     localizeCode(c, lang)
@@ -165,11 +177,19 @@ export const RedeemCodesModal: React.FC<RedeemCodesModalProps> = ({
                     </span>
                     <button
                       type="button"
-                      className="btn-primary"
+                      className={`btn-primary ${copiedCode === c.code ? "btn-copied" : ""}`}
                       style={{ height: 32, padding: "0 13px", fontSize: 12 }}
-                      onClick={() => onCopyCode(c.code)}
+                      onClick={() => handleModalCopy(c.code)}
                     >
-                      <Copy size={12} /> {t.copyOneClick}
+                      {copiedCode === c.code ? (
+                        <>
+                          <Check size={12.5} /> {copiedLabel}
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={12} /> {t.copyOneClick}
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

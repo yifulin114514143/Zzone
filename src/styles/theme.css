@@ -13,17 +13,17 @@
   --surface: #151924;
   --surface-hover: #1c2130;
   --surface-elevated: #222839;
-  --glass: rgba(13, 16, 24, 0.78);
-  --glass-scrolled: rgba(11, 13, 20, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.09);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --surface-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.075);
+  --glass: rgba(13, 16, 24, 0.86);
+  --glass-scrolled: rgba(11, 13, 20, 0.94);
+  --glass-border: rgba(255, 255, 255, 0.11);
+  --border: rgba(255, 255, 255, 0.095);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --surface-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --grid-dot: rgba(255, 255, 255, 0.048);
 
-  --text-1: #f5f7fb;
-  --text-2: #b4bdd0;
-  --text-3: #7d889e;
+  --text-1: #f8fafc;
+  --text-2: #c4cde0;
+  --text-3: #8d98b0;
 
   /* Primary Brand Accent — Clean Solid Sunset Ember (No gaudy gradient) */
   --brand: #ea541d;
@@ -60,9 +60,9 @@
 
   --ambient-top: radial-gradient(60% 26% at 50% -8%, rgba(255, 255, 255, 0.035), transparent 72%);
 
-  --font-brand: "Outfit", "Inter", sans-serif;
-  --font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-brand: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Segoe UI", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
 
   --r-sm: 8px;
   --r-md: 11px;
@@ -134,6 +134,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
 }
 
@@ -141,7 +142,7 @@ body {
   margin: 0;
   background-color: var(--bg);
   background-image: var(--ambient-top);
-  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--text-1);
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -169,6 +170,20 @@ select {
 
 button {
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
 }
 
 img {
@@ -211,18 +226,56 @@ img {
   }
 }
 
-/* Smooth circular theme reveal */
+/* Suppress mid-transition color/bg CSS fades during root theme snapshot capture */
+.theme-no-transition *,
+.theme-no-transition *::before,
+.theme-no-transition *::after {
+  transition: none !important;
+}
+
+/* Bidirectional Circular View Transition (Zero First/Last Frame Flash) */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(root) {
+  animation: none;
+}
+
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+  display: block;
 }
-::view-transition-new(root) {
+
+.vt-to-light::view-transition-old(root) {
+  z-index: 1;
+}
+.vt-to-light::view-transition-new(root) {
+  z-index: 9999;
   clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 50%));
-  animation: theme-reveal 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-@keyframes theme-reveal {
-  to {
-    clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 50%));
+
+.vt-to-dark::view-transition-new(root) {
+  z-index: 1;
+}
+.vt-to-dark::view-transition-old(root) {
+  z-index: 9999;
+  clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

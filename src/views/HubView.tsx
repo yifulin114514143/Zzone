@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Bookmark,
   Copy,
@@ -7,13 +7,16 @@ import {
   RefreshCw,
   Rss,
   Smartphone,
-  Sparkles,
 } from "lucide-react";
 import { localizeSource } from "../industry/localizedData";
 import { buildUnifiedNewsList, type RawOfficialArticle } from "../industry/news";
-import { COLLECTOR_SOURCES } from "../industry/site";
+import {
+  COLLECTOR_SOURCES,
+  type CollectorSourceGroup,
+  type CollectorSourceRegion,
+} from "../industry/site";
 import type { NewsItem } from "../industry/types";
-import { useI18n } from "../lib/i18n";
+import { useI18n, type AppLang } from "../lib/i18n";
 import { NewsCard } from "../components/NewsCard";
 import { SourceBadge } from "../components/SourceIcon";
 
@@ -33,6 +36,8 @@ interface HubViewProps {
 interface StatusResp {
   ok: boolean;
   syncRuns: number;
+  liveEventsCount?: number;
+  liveMerchCount?: number;
   pool?: {
     totalAccounts: number;
     activeAccounts: number;
@@ -49,6 +54,51 @@ interface StatusResp {
   };
 }
 
+const GROUP_COPY: Record<
+  AppLang,
+  {
+    all: string;
+    official: string;
+    events_fan: string;
+    merch_goods: string;
+    regions: Record<CollectorSourceRegion, string>;
+    liveMatrixDesc: string;
+  }
+> = {
+  zh: {
+    all: "全部信源",
+    official: "国内外官方",
+    events_fan: "漫展与同人",
+    merch_goods: "国内外周边与谷子",
+    regions: { cn: "国服/国内", global: "全球", jp: "日本", kr: "韩国", tw: "港澳台" },
+    liveMatrixDesc: "免号池直连中/英/日/韩/繁中全官方、米游社、HoYoLAB、YouTube RSS、B站会员购漫展、CPP 同人展与新品周边自动发现。",
+  },
+  ja: {
+    all: "全ソース",
+    official: "国内外公式",
+    events_fan: "展示会・同人",
+    merch_goods: "国内外グッズ",
+    regions: { cn: "中国", global: "グローバル", jp: "日本", kr: "韓国", tw: "台湾・香港" },
+    liveMatrixDesc: "中/英/日/韓/繁中公式・米遊社・HoYoLAB・YouTube RSS・展示会/同人即売会・新作グッズ自動取得に直接接続。",
+  },
+  ko: {
+    all: "전체 소스",
+    official: "국내외 공식",
+    events_fan: "행사 · 동인전",
+    merch_goods: "국내외 굿즈",
+    regions: { cn: "중국", global: "글로벌", jp: "일본", kr: "한국", tw: "대만·홍콩" },
+    liveMatrixDesc: "중/영/일/한/번체 공식·미유사·HoYoLAB·YouTube RSS·행사 티켓·CPP 동인전 및 굿즈 신상 자동 수집에 직접 연결.",
+  },
+  en: {
+    all: "All Sources",
+    official: "Global Official",
+    events_fan: "Expos & Fan Only",
+    merch_goods: "Merch & Figures",
+    regions: { cn: "China", global: "Global", jp: "Japan", kr: "Korea", tw: "TW/HK" },
+    liveMatrixDesc: "Direct zero-pool feeds across CN/EN/JP/KR/TW official sites, Miyoushe, HoYoLAB, YouTube RSS, ticketing expos, CPP fan events & merch auto-discovery.",
+  },
+};
+
 export const HubView: React.FC<HubViewProps> = ({
   news,
   bookmarks,
@@ -62,8 +112,10 @@ export const HubView: React.FC<HubViewProps> = ({
   onNotify,
 }) => {
   const { lang, t } = useI18n();
+  const groupCopy = GROUP_COPY[lang];
   const [status, setStatus] = useState<StatusResp | null>(null);
   const [isEnriching, setIsEnriching] = useState(false);
+  const [groupFilter, setGroupFilter] = useState<"all" | CollectorSourceGroup>("all");
 
   const loadStatus = () => {
     fetch("/api/v1/status")
@@ -94,9 +146,7 @@ export const HubView: React.FC<HubViewProps> = ({
         onApplyNews(buildUnifiedNewsList(json.officialItems as RawOfficialArticle[]));
       }
       loadStatus();
-      onNotify(
-        `AI +${json.enrichedCount} (cache hit: ${json.cacheHitCount})`
-      );
+      onNotify(`AI +${json.enrichedCount} (cache hit: ${json.cacheHitCount})`);
     } catch (err) {
       onNotify(err instanceof Error ? err.message : "LLM pool unavailable");
     } finally {
@@ -105,7 +155,21 @@ export const HubView: React.FC<HubViewProps> = ({
   };
 
   const savedNews = news.filter((n) => bookmarks.has(n.id));
-  const localizedSources = COLLECTOR_SOURCES.map((s) => localizeSource(s, lang));
+  const localizedSources = useMemo(
+    () => COLLECTOR_SOURCES.map((s) => localizeSource(s, lang)),
+    [lang]
+  );
+  const liveCount = useMemo(
+    () => COLLECTOR_SOURCES.filter((s) => s.mode === "live").length,
+    []
+  );
+  const filteredSources = useMemo(
+    () =>
+      groupFilter === "all"
+        ? localizedSources
+        : localizedSources.filter((s) => s.group === groupFilter),
+    [localizedSources, groupFilter]
+  );
 
   const copyText = async (txt: string, msg: string) => {
     try {
@@ -119,7 +183,7 @@ export const HubView: React.FC<HubViewProps> = ({
   const poolSnippet = `# 1. Configure server-only LLM / platform pool (ignored by git)
 cp server/pool.example.json server/pool.json
 
-# 2. Lightweight systemd service (~45MB RAM, ideal for 1.7G VPS)
+# 2. Lightweight systemd service (~50MB RAM, ideal for Hangzhou ECS)
 pnpm run build
 sudo cp deploy/zzone.service.example /etc/systemd/system/zzone.service
 sudo systemctl enable --now zzone
@@ -145,10 +209,10 @@ cp Caddyfile.example Caddyfile && caddy start`;
             <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: "var(--text-3)" }}>
               <Database size={15} color="var(--sky)" /> {t.liveSourcesCardTitle}
             </div>
-            <div className="mono" style={{ fontSize: 26, fontWeight: 800, color: "var(--sky)", margin: "6px 0" }}>
-              5 LIVE · 4 LANG
+            <div className="mono" style={{ fontSize: 24, fontWeight: 800, color: "var(--sky)", margin: "6px 0" }}>
+              {liveCount} LIVE · {COLLECTOR_SOURCES.length} SOURCES
             </div>
-            <div style={{ fontSize: 12.5, color: "var(--text-2)" }}>{t.liveSourcesCardDesc}</div>
+            <div style={{ fontSize: 12.5, color: "var(--text-2)" }}>{groupCopy.liveMatrixDesc}</div>
           </div>
 
           <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -164,7 +228,6 @@ cp Caddyfile.example Caddyfile && caddy start`;
                   disabled={isEnriching}
                   onClick={handleBatchEnrich}
                 >
-                  <Sparkles size={11} color="var(--brand-text)" />
                   {isEnriching ? t.llmEnrichingBtn : t.llmEnrichBtn}
                 </button>
               )}
@@ -212,17 +275,38 @@ cp Caddyfile.example Caddyfile && caddy start`;
         </div>
 
         <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 800 }}>
-            <Rss size={16} color="var(--brand-text)" /> {t.sourceMatrixTitle}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 800 }}>
+              <Rss size={16} color="var(--brand-text)" /> {t.sourceMatrixTitle} ({filteredSources.length})
+            </div>
+            <div className="chip-scroll">
+              {(
+                [
+                  ["all", `${groupCopy.all} (${COLLECTOR_SOURCES.length})`],
+                  ["official", `${groupCopy.official} (${COLLECTOR_SOURCES.filter((x) => x.group === "official").length})`],
+                  ["events_fan", `${groupCopy.events_fan} (${COLLECTOR_SOURCES.filter((x) => x.group === "events_fan").length})`],
+                  ["merch_goods", `${groupCopy.merch_goods} (${COLLECTOR_SOURCES.filter((x) => x.group === "merch_goods").length})`],
+                ] as Array<["all" | CollectorSourceGroup, string]>
+              ).map(([gk, label]) => (
+                <button
+                  key={gk}
+                  type="button"
+                  className={`chip ${groupFilter === gk ? "brand-active" : ""}`}
+                  onClick={() => setGroupFilter(gk)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {localizedSources.map((s) => (
+            {filteredSources.map((s) => (
               <div
                 key={s.id}
                 style={{
                   padding: "12px 14px",
-                  borderRadius: 12,
+                  borderRadius: 11,
                   background: "var(--bg-subtle)",
                   border: "1px solid var(--border)",
                   display: "flex",
@@ -233,11 +317,25 @@ cp Caddyfile.example Caddyfile && caddy start`;
                 }}
               >
                 <div style={{ minWidth: 240, flex: 1 }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 7 }}>
                     <SourceBadge platform={s.platform} />
                     <a href={s.url} target="_blank" rel="noreferrer" style={{ fontSize: 14, fontWeight: 700 }}>
                       {s.name}
                     </a>
+                    <span
+                      className="mono"
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: "1px 6px",
+                        borderRadius: 5,
+                        background: "var(--surface)",
+                        border: "1px solid var(--border)",
+                        color: "var(--text-3)",
+                      }}
+                    >
+                      {groupCopy.regions[s.region]}
+                    </span>
                     <span className="mono" style={{ fontSize: 11, color: "var(--text-3)" }}>
                       {s.handle}
                     </span>
@@ -249,8 +347,8 @@ cp Caddyfile.example Caddyfile && caddy start`;
                   style={{
                     fontSize: 11,
                     fontWeight: 700,
-                    padding: "4px 10px",
-                    borderRadius: 99,
+                    padding: "4px 9px",
+                    borderRadius: 6,
                     background:
                       s.mode === "live"
                         ? "var(--sky-soft)"

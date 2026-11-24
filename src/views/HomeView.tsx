@@ -9,7 +9,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { MERCH_CADENCE_META } from "../industry/merch";
+import { MERCH_CAT_META } from "../industry/merch";
 import { COLLECTOR_SOURCES } from "../industry/site";
 import type {
   MerchItem,
@@ -18,11 +18,11 @@ import type {
   OfflineEvent,
   SourcePlatformKey,
 } from "../industry/types";
-import { MERCH_CADENCE_LABELS, PLATFORM_LABELS, useI18n } from "../lib/i18n";
+import { MERCH_CADENCE_LABELS, MERCH_CAT_LABELS, PLATFORM_LABELS, useI18n } from "../lib/i18n";
 import {
   partitionAndSortEvents,
+  partitionAndSortMerch,
   pickDiverseHomeNews,
-  sortMerchByPriority,
   sortNewsByPriority,
 } from "../lib/ranking";
 import { formatSlashMD } from "../lib/time";
@@ -151,10 +151,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     [sortedActiveEvents]
   );
   const freshMerchOnly = useMemo(() => {
-    const sorted = sortMerchByPriority(merch);
-    // Prefer real product photography on the Discover page; keep preview-only placeholder on the Merch tab
-    const withRealPhotos = sorted.filter((m) => m.id !== "merch-v34-bundle");
-    return (withRealPhotos.length >= 3 ? withRealPhotos : sorted).slice(0, 3);
+    // Strictly show pure official game merch on Discover (keep brand collabs cleanly separated on Merch -> Brand Collabs)
+    const pureGameMerch = merch.filter((m) => m.merchLine !== "collab" && !m.mihoyogiftId);
+    const { active: sorted } = partitionAndSortMerch(pureGameMerch);
+    return sorted.slice(0, 3);
   }, [merch]);
 
   const prioritizedNews = useMemo(() => sortNewsByPriority(news), [news]);
@@ -336,7 +336,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             <div className="dock-source-line">
               {COLLECTOR_SOURCES.slice(0, 5)
-                .map((src) => PLATFORM_LABELS[lang]?.[src.platform] || SOURCE_PLATFORM_META[src.platform]?.name)
+                .map((src) => PLATFORM_LABELS[lang]?.[src.platform] || SOURCE_PLATFORM_META[src.platform]?.short)
                 .join(" · ")}
             </div>
 
@@ -425,52 +425,61 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         <div className="merch-grid">
-          {freshMerchOnly.map((item) => (
-            <article key={item.id} className="merch-card">
-              <div className="merch-photo-wrap" onClick={() => onOpenMerch(item)}>
-                <img src={item.coverUrl} alt={item.name} loading="lazy" />
-                <div className="merch-photo-scrim" />
-                <div className="media-overlay-top">
-                  <span
-                    className={`cadence-pill ${MERCH_CADENCE_META[item.cadence].cssClass}`}
-                    style={{ background: "rgba(11,12,17,0.74)", color: "#fff", borderColor: "rgba(255,255,255,0.14)" }}
-                  >
-                    {MERCH_CADENCE_LABELS[lang][item.cadence]}
-                  </span>
-                  <span className="photo-count-pill">
-                    <Images size={11} /> {t.photosCount(item.gallery.length)}
-                  </span>
+          {freshMerchOnly.map((item) => {
+            const catMeta = MERCH_CAT_META[item.category];
+            const pillLabel =
+              item.cadence === "fes_drop" || item.cadence === "version_drop"
+                ? MERCH_CADENCE_LABELS[lang][item.cadence]
+                : MERCH_CAT_LABELS[lang][item.category];
+            return (
+              <article key={item.id} className="merch-card">
+                <div className="merch-photo-wrap" onClick={() => onOpenMerch(item)}>
+                  <img src={item.coverUrl} alt={item.name} loading="lazy" />
+                  <div className="merch-photo-scrim" />
+                  <div className="media-overlay-top">
+                    <span className="cat-pill">
+                      <span className="cat-dot" style={{ "--cc": catMeta.color } as React.CSSProperties} />
+                      {pillLabel}
+                    </span>
+                    {item.gallery.length > 1 && (
+                      <span className="photo-count-pill">
+                        <Images size={11} /> {t.photosCount(item.gallery.length)}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {item.sourcePlatforms.slice(0, 2).map((sp) => (
-                    <SourceBadge key={sp} platform={sp} />
-                  ))}
+                <div className="merch-card-body">
+                  <div className="merch-card-kicker">
+                    <span className="merch-card-series">{item.characterOrFaction}</span>
+                  </div>
+                  <h3 style={{ margin: 0 }}>
+                    <button
+                      type="button"
+                      className="news-title"
+                      style={{ fontSize: 15 }}
+                      onClick={() => onOpenMerch(item)}
+                    >
+                      {item.name}
+                    </button>
+                  </h3>
+                  <div className="merch-card-foot">
+                    <span className="merch-price" style={{ fontSize: 16.5 }}>
+                      {item.priceText}
+                    </span>
+                    <button
+                      type="button"
+                      className="ghost-link"
+                      style={{ fontSize: 12, padding: "2px 6px" }}
+                      onClick={() => onOpenMerch(item)}
+                    >
+                      {t.viewMultiPhoto}
+                    </button>
+                  </div>
                 </div>
-                <h3
-                  style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.4, cursor: "pointer" }}
-                  onClick={() => onOpenMerch(item)}
-                >
-                  {item.name}
-                </h3>
-                <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingTop: 6 }}>
-                  <span className="merch-price" style={{ fontSize: 16.5 }}>
-                    {item.priceText}
-                  </span>
-                  <button
-                    type="button"
-                    className="ghost-link"
-                    style={{ fontSize: 12, padding: "2px 6px" }}
-                    onClick={() => onOpenMerch(item)}
-                  >
-                    {t.viewMultiPhoto}
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </section>
 

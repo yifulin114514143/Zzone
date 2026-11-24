@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Globe,
   Images,
   MapPin,
   Plus,
@@ -184,6 +185,14 @@ interface EventsViewProps {
 type OfficialFilter = "all" | "official" | "unofficial";
 type StatusFilter = "active" | "archive";
 type TypeFilter = "all" | OfflineEventType;
+type EventRegionFilter = "all" | "cn" | "overseas";
+
+const REGION_FILTER_LABELS: Record<AppLang, Record<EventRegionFilter, string>> = {
+  zh: { all: "全部地区", cn: "国内", overseas: "日本与海外" },
+  ja: { all: "全地域", cn: "中国", overseas: "日本・海外" },
+  ko: { all: "전체 지역", cn: "중국", overseas: "일본 · 해외" },
+  en: { all: "All Regions", cn: "China", overseas: "JP & Global" },
+};
 
 export const EventsView: React.FC<EventsViewProps> = ({
   events,
@@ -195,10 +204,12 @@ export const EventsView: React.FC<EventsViewProps> = ({
   const { lang, t } = useI18n();
   const modalCopy = EVENT_MODAL_COPY[lang];
   const typeLabels = EVENT_TYPE_LABELS[lang];
+  const regionLabels = REGION_FILTER_LABELS[lang];
 
   const [officialFilter, setOfficialFilter] = useState<OfficialFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [regionFilter, setRegionFilter] = useState<EventRegionFilter>("all");
   const [showPastSection, setShowPastSection] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showSubmit, setShowSubmit] = useState(false);
@@ -236,6 +247,8 @@ export const EventsView: React.FC<EventsViewProps> = ({
       if (officialFilter === "official" && !e.official) return false;
       if (officialFilter === "unofficial" && e.official) return false;
       if (typeFilter !== "all" && e.type !== typeFilter) return false;
+      if (regionFilter === "cn" && e.region && e.region !== "cn") return false;
+      if (regionFilter === "overseas" && (!e.region || e.region === "cn")) return false;
       return true;
     });
 
@@ -246,16 +259,17 @@ export const EventsView: React.FC<EventsViewProps> = ({
       featuredEvent &&
       officialFilter === "all" &&
       typeFilter === "all" &&
+      regionFilter === "all" &&
       list.length > 1
     ) {
       return list.filter((e) => e.id !== featuredEvent.id);
     }
     return list;
-  }, [allActiveEvents, featuredEvent, officialFilter, typeFilter]);
+  }, [allActiveEvents, featuredEvent, officialFilter, typeFilter, regionFilter]);
 
   const pastFiltered = useMemo(
     () => applyCommonFilters(allPastEvents),
-    [allPastEvents, officialFilter, typeFilter]
+    [allPastEvents, officialFilter, typeFilter, regionFilter]
   );
 
   const exportEventIcs = (list: OfflineEvent[]) => {
@@ -600,17 +614,33 @@ export const EventsView: React.FC<EventsViewProps> = ({
           </div>
         </div>
 
-        <div className="chip-scroll">
-          {(["all", "fes", "concert", "collab_offline", "popup", "fan_only", "fan_live"] as TypeFilter[]).map((tf) => (
-            <button
-              key={tf}
-              type="button"
-              className={`chip ${typeFilter === tf ? "active" : ""}`}
-              onClick={() => setTypeFilter(tf)}
-            >
-              {tf === "all" ? t.allSubTypes : typeLabels[tf]}
-            </button>
-          ))}
+        <div className="toolbar-row">
+          <div className="chip-scroll">
+            {(["all", "fes", "concert", "collab_offline", "popup", "fan_only", "fan_live"] as TypeFilter[]).map((tf) => (
+              <button
+                key={tf}
+                type="button"
+                className={`chip ${typeFilter === tf ? "active" : ""}`}
+                onClick={() => setTypeFilter(tf)}
+              >
+                {tf === "all" ? t.allSubTypes : typeLabels[tf]}
+              </button>
+            ))}
+          </div>
+
+          <div className="chip-scroll">
+            {(["all", "cn", "overseas"] as EventRegionFilter[]).map((rf) => (
+              <button
+                key={rf}
+                type="button"
+                className={`chip ${regionFilter === rf ? "active" : ""}`}
+                onClick={() => setRegionFilter(rf)}
+              >
+                {rf === "overseas" && <Globe size={11.5} />}
+                {regionLabels[rf]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

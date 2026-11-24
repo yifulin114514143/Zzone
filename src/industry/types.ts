@@ -25,17 +25,22 @@ export type SourcePlatformKey =
   | "zzz-cn"
   | "hoyoverse"
   | "zzz-jp"
+  | "zzz-kr"
+  | "zzz-tw"
   | "miyoushe"
   | "hoyolab"
   | "x"
   | "bilibili"
   | "youtube"
   | "weibo"
+  | "naver"
   | "tmall"
   | "douyin"
   | "apex"
+  | "amiami"
   | "hpoi"
   | "cpp"
+  | "comiket"
   | "ticket"
   | "xhs"
   | "taptap"
@@ -90,12 +95,14 @@ export interface RedeemCode {
 /* ---- Offline & Fan Events ---- */
 export type OfflineEventType = "fes" | "concert" | "collab_offline" | "popup" | "fan_only" | "fan_live";
 export type OfflineEventStatus = "upcoming" | "open" | "archive";
+export type RegionScope = "cn" | "jp" | "kr" | "global";
 
 export interface OfflineEvent {
   id: string;
   title: string;
   subtitle: string;
   official: boolean;
+  region?: RegionScope;
   organizer: string;
   type: OfflineEventType;
   status: OfflineEventStatus;
@@ -115,17 +122,22 @@ export interface OfflineEvent {
 }
 
 /* ---- Official & Periodic Merch Drops ---- */
+export type MerchLine = "game" | "collab";
 export type MerchCategory = "figure" | "bangboo" | "collab_merch" | "goods" | "apparel" | "fes_limited";
 export type MerchCadence = "version_drop" | "daily_drop" | "collab_drop" | "fes_drop";
-export type MerchSaleStatus = "presale" | "in_stock" | "coming_soon" | "ending_soon";
+export type MerchSaleStatus = "presale" | "in_stock" | "coming_soon" | "ending_soon" | "archived";
 
 export interface MerchItem {
   id: string;
+  merchLine: MerchLine;
   name: string;
   series: string;
   category: MerchCategory;
   cadence: MerchCadence;
   saleStatus: MerchSaleStatus;
+  region?: RegionScope;
+  mihoyogiftId?: string;
+  soldOut?: boolean;
   priceText: string;
   priceNum: number;
   releaseDate: string;

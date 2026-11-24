@@ -232,19 +232,49 @@ export function pickDiverseHomeNews(
 }
 
 /**
+ * Determine whether a merch drop belongs in the past/archived catalog
+ */
+export function isMerchArchived(item: MerchItem, nowMs = Date.now()): boolean {
+  if (item.saleStatus === "archived") return true;
+  if (item.cutoffAt) {
+    const dl = new Date(item.cutoffAt).getTime();
+    if (!Number.isNaN(dl) && dl + 7 * 86400_000 < nowMs) return true;
+  }
+  return false;
+}
+
+function extractReleaseTimestamp(item: MerchItem): number {
+  const m = (item.releaseDate || "").match(/(20\d{2})[-./年](\d{1,2})(?:[-./月](\d{1,2}))?/);
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3] || 15);
+    const ts = new Date(y, mo - 1, d).getTime();
+    if (!Number.isNaN(ts)) return ts;
+  }
+  const upd = new Date(item.updatedAt).getTime();
+  return Number.isNaN(upd) ? 0 : upd;
+}
+
+/**
  * Merch urgency + freshness sorting:
- * ending_soon (with active cutoff) > coming_soon > presale > in_stock, then newest releaseDate
+ * ending_soon (with active cutoff) > coming_soon > presale > in_stock > archived,
+ * then newest releaseDate descending
  */
 export function sortMerchByPriority(items: MerchItem[], nowMs = Date.now()): MerchItem[] {
   const statusWeight: Record<MerchItem["saleStatus"], number> = {
-    ending_soon: 400,
-    coming_soon: 320,
-    presale: 240,
-    in_stock: 120,
+    ending_soon: 420,
+    coming_soon: 340,
+    presale: 250,
+    in_stock: 140,
+    archived: -500,
   };
 
   const merchScore = (m: MerchItem): number => {
-    let s = statusWeight[m.saleStatus] || 100;
+    let s = statusWeight[m.saleStatus] ?? 100;
+    if (m.saleStatus === "archived") {
+      return s + extractReleaseTimestamp(m) / 1e11;
+    }
     if (m.cadence === "fes_drop" || m.cadence === "version_drop") s += 55;
     if (m.cadence === "collab_drop") s += 35;
 
@@ -252,18 +282,37 @@ export function sortMerchByPriority(items: MerchItem[], nowMs = Date.now()): Mer
       const dl = new Date(m.cutoffAt).getTime();
       if (!Number.isNaN(dl)) {
         const daysLeft = (dl - nowMs) / 86400_000;
-        if (daysLeft < 0) s -= 260; // Cutoff passed -> sink down
+        if (daysLeft < 0) s -= 260;
         else if (daysLeft <= 14) s += 60 - daysLeft * 2;
       }
     }
 
-    const relMs = new Date(m.releaseDate).getTime();
-    if (!Number.isNaN(relMs)) {
+    const relMs = extractReleaseTimestamp(m);
+    if (relMs > 0) {
       const daysOld = (nowMs - relMs) / 86400_000;
-      s += Math.max(-40, Math.min(40, 20 - daysOld * 0.3));
+      s += Math.max(-45, Math.min(45, 22 - daysOld * 0.28));
     }
     return s;
   };
 
   return [...items].sort((a, b) => merchScore(b) - merchScore(a));
+}
+
+/**
+ * Partition merch into active (in-stock / presale / coming-soon / ending-soon)
+ * and archived (past / closed / historical classics), each strictly sorted by timeliness.
+ */
+export function partitionAndSortMerch(items: MerchItem[], nowMs = Date.now()) {
+  const active: MerchItem[] = [];
+  const archived: MerchItem[] = [];
+
+  for (const item of items) {
+    if (isMerchArchived(item, nowMs)) archived.push(item);
+    else active.push(item);
+  }
+
+  return {
+    active: sortMerchByPriority(active, nowMs),
+    archived: [...archived].sort((a, b) => extractReleaseTimestamp(b) - extractReleaseTimestamp(a)),
+  };
 }

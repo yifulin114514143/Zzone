@@ -24,8 +24,8 @@
   margin: 0 auto;
   border-radius: 14px;
   background: var(--glass);
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
   border: 1px solid var(--glass-border);
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
   pointer-events: auto;
@@ -194,8 +194,8 @@
   background: var(--brand);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
   transition:
-    transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
-    width 340ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 300ms cubic-bezier(0.25, 1, 0.35, 1),
+    width 300ms cubic-bezier(0.25, 1, 0.35, 1);
   pointer-events: none;
   z-index: 0;
 }
@@ -213,8 +213,12 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: color 180ms ease;
+  transition: color 180ms ease, transform 130ms ease;
   white-space: nowrap;
+}
+
+.nav-pill:active {
+  transform: scale(0.96);
 }
 
 .nav-pill-icon {
@@ -277,13 +281,17 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 130ms ease;
 }
 
 .cmd-search-btn:hover {
   border-color: var(--border-strong);
   background: var(--surface-hover);
   color: var(--text-1);
+}
+
+.cmd-search-btn:active {
+  transform: scale(0.96);
 }
 
 .cmd-kbd {
@@ -296,6 +304,12 @@
   border: 1px solid var(--border);
   color: var(--text-3);
   line-height: 1.3;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.cmd-search-btn:hover .cmd-kbd {
+  border-color: var(--border-strong);
+  color: var(--text-2);
 }
 
 .topbar-utility-group {
@@ -328,12 +342,24 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: background 150ms ease, color 150ms ease;
+  transition: background 150ms ease, color 150ms ease, transform 130ms ease;
+}
+
+.utility-sync-btn svg {
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .utility-sync-btn:hover {
   background: var(--surface-hover);
   color: var(--text-1);
+}
+
+.utility-sync-btn:hover svg:not(.spin) {
+  transform: rotate(45deg);
+}
+
+.utility-sync-btn:active {
+  transform: scale(0.96);
 }
 
 .live-dot-quiet {
@@ -355,12 +381,62 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: background 150ms ease, color 150ms ease;
+  transition: background 150ms ease, color 150ms ease, transform 130ms ease;
 }
 
 .utility-icon-btn:hover {
   background: var(--surface-hover);
   color: var(--text-1);
+}
+
+.utility-icon-btn:active {
+  transform: scale(0.9);
+}
+
+/* Tactile Dual-Layer Sun / Moon Theme Toggle Button */
+.theme-toggle-btn {
+  overflow: hidden;
+}
+
+.theme-icon-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition:
+    transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease,
+    color 180ms ease;
+}
+
+.theme-toggle-btn.is-dark .theme-icon-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.theme-toggle-btn.is-dark .theme-icon-moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.45);
+}
+
+.theme-toggle-btn.is-dark:hover .theme-icon-sun {
+  color: var(--gold-text);
+  transform: rotate(24deg) scale(1.06);
+}
+
+.theme-toggle-btn.is-light .theme-icon-sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.45);
+}
+
+.theme-toggle-btn.is-light .theme-icon-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.theme-toggle-btn.is-light:hover .theme-icon-moon {
+  color: var(--sky);
+  transform: rotate(-16deg) scale(1.06);
 }
 
 .sync-chip {
@@ -403,13 +479,25 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: border-color 150ms, color 150ms, background 150ms;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease, transform 140ms ease;
+}
+
+.icon-btn svg {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .icon-btn:hover {
   border-color: var(--border-strong);
   color: var(--text-1);
   background: var(--surface-hover);
+}
+
+.icon-btn:active {
+  transform: scale(0.91);
+}
+
+.modal-head .icon-btn:hover svg {
+  transform: rotate(90deg);
 }
 
 .icon-dot {
@@ -483,6 +571,10 @@
   transform: translateX(2px);
 }
 
+.ghost-link:active {
+  transform: scale(0.97);
+}
+
 /* ---- Primary Buttons ---- */
 .btn-primary {
   height: 36px;
@@ -496,17 +588,28 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
-  transition: background 160ms ease, transform 160ms ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: background 160ms ease, transform 140ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 160ms ease;
 }
 
 .btn-primary:hover {
   background: var(--brand-2);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 84, 29, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.97);
+}
+
+.btn-primary.btn-copied {
+  background: var(--gold);
+  color: #11131a;
+  box-shadow: 0 2px 8px rgba(229, 169, 53, 0.28);
+}
+
+.btn-primary.btn-copied svg {
+  animation: check-pop 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .btn-secondary {
@@ -521,7 +624,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  transition: background 150ms, border-color 150ms;
+  transition: background 150ms ease, border-color 150ms ease, transform 130ms ease;
 }
 
 .btn-secondary:hover {
@@ -529,10 +632,14 @@
   border-color: var(--text-3);
 }
 
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
 /* ---- Home Hero Bento ---- */
 .hero-bento {
   display: grid;
-  grid-template-columns: minmax(0, 1.52fr) minmax(340px, 0.92fr);
+  grid-template-columns: minmax(0, 1fr) 416px;
   gap: 20px;
   align-items: stretch;
 }
@@ -541,14 +648,10 @@
   position: relative;
   border-radius: var(--r-xl);
   overflow: hidden;
-  overflow: clip;
-  contain: paint;
-  isolation: isolate;
-  transform: translateZ(0);
   background: #101219;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-md);
-  min-height: 446px;
+  min-height: 440px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -556,31 +659,32 @@
 
 .hero-bg-img {
   position: absolute;
-  inset: -1px;
-  width: calc(100% + 2px);
-  height: calc(100% + 2px);
-  max-width: none;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: center 24%;
   z-index: 0;
-  transform: translate3d(0, 0, 0) scale(1);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  will-change: transform;
-  transition: transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .hero-stage:hover .hero-bg-img {
-  transform: translate3d(0, 0, 0) scale(1.03);
+  transform: scale(1.025);
 }
 
 .hero-scrim {
   position: absolute;
-  inset: -1px;
+  inset: 0;
   z-index: 1;
-  transform: translateZ(0);
   background:
-    linear-gradient(180deg, rgba(11, 12, 17, 0.22) 0%, rgba(11, 12, 17, 0.48) 46%, rgba(11, 12, 17, 0.95) 100%),
-    linear-gradient(90deg, rgba(11, 12, 17, 0.72) 0%, transparent 65%);
+    linear-gradient(
+      180deg,
+      rgba(9, 11, 17, 0.08) 0%,
+      rgba(9, 11, 17, 0.16) 44%,
+      rgba(9, 11, 17, 0.78) 76%,
+      rgba(9, 11, 17, 0.94) 100%
+    );
+  pointer-events: none;
 }
 
 .hero-top-bar {
@@ -601,9 +705,8 @@
   gap: 7px;
   padding: 5px 11px;
   border-radius: 6px;
-  background: rgba(11, 12, 17, 0.72);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(9, 11, 17, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: #ffffff;
   font-size: 11.5px;
   font-weight: 700;
@@ -621,10 +724,9 @@
   letter-spacing: 0.08em;
   padding: 5px 10px;
   border-radius: var(--r-pill);
-  background: rgba(9, 11, 16, 0.62);
-  backdrop-filter: blur(10px);
+  background: rgba(9, 11, 17, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  color: rgba(255, 255, 255, 0.84);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .hero-arrows {
@@ -636,9 +738,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(9, 11, 16, 0.56);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(9, 11, 17, 0.76);
   color: #ffffff;
   display: grid;
   place-items: center;
@@ -649,6 +750,10 @@
   background: var(--brand);
   border-color: var(--brand);
   transform: scale(1.06);
+}
+
+.hero-arrow-btn:active {
+  transform: scale(0.92);
 }
 
 .hero-content {
@@ -669,12 +774,11 @@
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.9);
   padding: 3px 10px;
   border-radius: var(--r-pill);
-  background: rgba(9, 11, 16, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(8px);
+  background: rgba(9, 11, 17, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .hero-date-dot {
@@ -723,9 +827,8 @@
   gap: 6px;
   padding: 5px 8px;
   border-radius: var(--r-pill);
-  background: rgba(9, 11, 16, 0.42);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(9, 11, 17, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .hero-dot {
@@ -986,14 +1089,11 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-sm);
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), border-color 320ms ease, box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 240ms ease;
 }
 
 .news-card:hover {
-  transform: translate3d(0, -4px, 0);
+  transform: translateY(-3px);
   border-color: var(--border-strong);
   box-shadow: var(--shadow-md);
 }
@@ -1006,31 +1106,22 @@
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  overflow: clip;
-  contain: paint;
-  isolation: isolate;
-  transform: translateZ(0);
   background: var(--surface);
   cursor: pointer;
 }
 
 .news-media img {
   position: absolute;
-  inset: -1px;
-  width: calc(100% + 2px);
-  height: calc(100% + 2px);
-  max-width: none;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   z-index: 0;
-  transform: translate3d(0, 0, 0) scale(1);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  will-change: transform;
-  transition: transform 780ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .news-card:hover .news-media img {
-  transform: translate3d(0, 0, 0) scale(1.04);
+  transform: scale(1.03);
 }
 
 .news-media-fallback {
@@ -1068,9 +1159,8 @@
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  background: rgba(11, 12, 17, 0.72);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(9, 11, 17, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #ffffff;
   display: inline-flex;
   align-items: center;
@@ -1088,19 +1178,29 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(11, 12, 17, 0.62);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(9, 11, 17, 0.78);
   color: #ffffff;
   display: grid;
   place-items: center;
-  transition: background 150ms, color 150ms;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease, border-color 150ms ease;
+}
+
+.card-bookmark:hover {
+  transform: scale(1.08);
+  background: rgba(9, 11, 17, 0.92);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.card-bookmark:active {
+  transform: scale(0.88);
 }
 
 .card-bookmark.saved {
   background: var(--brand);
   color: #ffffff;
   border-color: var(--brand);
+  animation: pop-spring 340ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .news-body {
@@ -1232,14 +1332,11 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-sm);
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), border-color 320ms ease, box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 240ms ease;
 }
 
 .event-card:hover {
-  transform: translate3d(0, -3px, 0);
+  transform: translateY(-3px);
   border-color: var(--border-strong);
   box-shadow: var(--shadow-md);
 }
@@ -1335,14 +1432,11 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-sm);
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), border-color 320ms ease, box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 240ms ease;
 }
 
 .merch-card:hover {
-  transform: translate3d(0, -4px, 0);
+  transform: translateY(-3px);
   border-color: var(--brand-border);
   box-shadow: var(--shadow-md);
 }
@@ -1380,44 +1474,35 @@
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  overflow: clip;
-  contain: paint;
-  isolation: isolate;
-  transform: translateZ(0);
   background: var(--surface);
   cursor: pointer;
 }
 
 .merch-photo-wrap img {
   position: absolute;
-  inset: -1px;
-  width: calc(100% + 2px);
-  height: calc(100% + 2px);
-  max-width: none;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   z-index: 0;
-  transform: translate3d(0, 0, 0) scale(1);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  will-change: transform;
-  transition: transform 780ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .merch-card:hover .merch-photo-wrap img,
 .event-card:hover .merch-photo-wrap img {
-  transform: translate3d(0, 0, 0) scale(1.04);
+  transform: scale(1.03);
 }
 
 .merch-photo-scrim {
   position: absolute;
-  inset: -1px;
+  inset: 0;
   z-index: 1;
-  transform: translateZ(0);
   background: linear-gradient(
     180deg,
-    rgba(11, 12, 17, 0.34) 0%,
-    rgba(11, 12, 17, 0.04) 44%,
-    rgba(11, 12, 17, 0.8) 100%
+    rgba(9, 11, 17, 0.16) 0%,
+    rgba(9, 11, 17, 0) 38%,
+    rgba(9, 11, 17, 0) 64%,
+    rgba(9, 11, 17, 0.68) 100%
   );
   pointer-events: none;
 }
@@ -1440,9 +1525,8 @@
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
-  background: rgba(11, 12, 17, 0.72);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(9, 11, 17, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #ffffff;
   display: inline-flex;
   align-items: center;
@@ -1494,13 +1578,586 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  transition: all 150ms ease;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 130ms ease;
+}
+
+.wish-btn:hover {
+  border-color: var(--text-3);
+  color: var(--text-1);
+}
+
+.wish-btn:active {
+  transform: scale(0.95);
 }
 
 .wish-btn.wished {
   background: var(--rose-soft);
   color: var(--rose);
   border-color: rgba(251, 113, 133, 0.4);
+}
+
+.wish-btn.wished svg {
+  animation: pop-spring 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---- Refined Merch Page: Two-Track Tabs, Compact Toolbar, Square Catalog Grid & Modal ---- */
+.merch-track-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.merch-track-card {
+  position: relative;
+  text-align: left;
+  padding: 16px 20px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm), var(--surface-highlight);
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.merch-track-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+  transition: background 180ms ease;
+}
+
+.merch-track-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.merch-track-card:active {
+  transform: scale(0.99);
+}
+
+.merch-track-card.is-active-game {
+  border-color: var(--brand-border);
+  background: linear-gradient(90deg, var(--brand-soft) 0%, var(--surface) 44%);
+}
+
+.merch-track-card.is-active-game::before {
+  background: var(--brand);
+}
+
+.merch-track-card.is-active-collab {
+  border-color: var(--sky-border);
+  background: linear-gradient(90deg, var(--sky-soft) 0%, var(--surface) 44%);
+}
+
+.merch-track-card.is-active-collab::before {
+  background: var(--sky);
+}
+
+.merch-track-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.merch-track-card.is-active-game .merch-track-icon {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #ffffff;
+}
+
+.merch-track-card.is-active-collab .merch-track-icon {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: #090b10;
+}
+
+.merch-track-title {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: var(--text-1);
+  line-height: 1.25;
+}
+
+.merch-track-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.merch-track-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.merch-track-num {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text-2);
+}
+
+.merch-track-card.is-active-game .merch-track-num {
+  color: var(--brand-text);
+}
+
+.merch-track-card.is-active-collab .merch-track-num {
+  color: var(--sky);
+}
+
+.merch-track-breakdown {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* Compact Merch Filter Bar */
+.merch-toolbar {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.merch-toolbar-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.merch-toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.merch-seg-tabs {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  gap: 2px;
+}
+
+.merch-seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.merch-seg-btn:hover {
+  color: var(--text-1);
+}
+
+.merch-seg-btn:active {
+  transform: scale(0.96);
+}
+
+.merch-seg-btn.active {
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.merch-seg-btn.active-muted {
+  background: var(--surface-elevated);
+  color: var(--text-1);
+  box-shadow: var(--shadow-sm);
+}
+
+.merch-sort-wrap {
+  height: 36px;
+  padding: 0 10px 0 11px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.merch-sort-select {
+  border: none;
+  background: transparent;
+  color: var(--text-1);
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  padding-right: 4px;
+}
+
+.merch-sort-select option {
+  background: var(--surface);
+  color: var(--text-1);
+}
+
+.chip-count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.chip.active .chip-count {
+  opacity: 0.78;
+}
+
+.merch-sync-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+/* Sub-section Heading Inside Merch */
+.merch-subhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.merch-subhead-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.merch-subhead-count {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+.merch-subhead-desc {
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+
+/* Floating Heart Wishlist Button on Media Corners */
+.merch-heart-fab {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(9, 11, 17, 0.78);
+  color: rgba(255, 255, 255, 0.92);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.merch-heart-fab:hover {
+  transform: scale(1.08);
+  background: rgba(11, 12, 17, 0.9);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.merch-heart-fab:active {
+  transform: scale(0.88);
+}
+
+.merch-heart-fab.wished {
+  background: #e11d48;
+  border-color: #fb7185;
+  color: #ffffff;
+  animation: pop-spring 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Curated Merch Card Body Polish */
+.merch-card-body {
+  padding: 14px 16px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+}
+
+.merch-card-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-3);
+  min-width: 0;
+}
+
+.merch-card-series {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.merch-card-region {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1.5px 6px;
+  border-radius: 5px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.merch-card-foot {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* 4-Column 1:1 Square Official Shop Catalog Grid (miHoYoGift SKUs) */
+.merch-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.merch-sku-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm), var(--surface-highlight);
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 240ms ease;
+}
+
+.merch-sku-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md), var(--surface-highlight);
+}
+
+.merch-sku-card.is-archived {
+  opacity: 0.84;
+}
+
+.merch-sku-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.merch-sku-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.merch-sku-card:hover .merch-sku-media img {
+  transform: scale(1.03);
+}
+
+.merch-sku-overlay {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  right: 9px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.merch-sku-overlay button {
+  pointer-events: auto;
+}
+
+.merch-sku-body {
+  padding: 12px 14px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.merch-sku-series {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merch-sku-title {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.42;
+  color: var(--text-1);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 160ms ease;
+}
+
+.merch-sku-card:hover .merch-sku-title {
+  color: var(--brand-text);
+}
+
+.merch-sku-foot {
+  margin-top: auto;
+  padding-top: 6px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.merch-sku-price {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--brand-text);
+}
+
+.merch-sku-date {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* Merch Modal Structured Spec Pills & Notice */
+.merch-attr-panel {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.merch-attr-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.merch-attr-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.merch-attr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.merch-attr-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.merch-notice-box {
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text-2);
+}
+
+@media (max-width: 1180px) {
+  .merch-catalog-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .merch-track-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .merch-catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .merch-sku-body {
+    padding: 10px 11px 11px;
+  }
 }
 
 /* ---- Hot Topic Cluster Cards ---- */
@@ -1924,6 +2581,48 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  animation: toast-rise 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes toast-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes pop-spring {
+  0% {
+    transform: scale(1);
+  }
+  38% {
+    transform: scale(1.25);
+  }
+  72% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ---- Mobile Floating Dock ---- */
@@ -2204,23 +2903,41 @@
   height: 30px;
   border-radius: 8px;
   border: 1px solid var(--border-strong);
-  background: var(--glass-scrolled);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--text-3);
-  opacity: 0.74;
+  background: var(--surface-elevated);
+  color: var(--text-2);
+  opacity: 0;
+  transform: translateY(10px) scale(0.92);
+  pointer-events: none;
   display: grid;
   place-items: center;
   box-shadow: var(--shadow-sm);
-  transition: opacity 160ms ease, transform 160ms ease, color 160ms ease, border-color 160ms ease, background 160ms ease;
+  transition: opacity 200ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1), color 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
-.back-to-top-btn:hover {
+.back-to-top-btn.is-visible {
+  opacity: 0.84;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.back-to-top-btn svg {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.back-to-top-btn.is-visible:hover {
   opacity: 1;
   color: var(--text-1);
   border-color: var(--text-3);
   background: var(--surface-hover);
   transform: translateY(-2px);
+}
+
+.back-to-top-btn.is-visible:hover svg {
+  transform: translateY(-1.5px);
+}
+
+.back-to-top-btn.is-visible:active {
+  transform: translateY(0) scale(0.92);
 }
 
 @media (min-width: 1520px) {
@@ -2252,11 +2969,23 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition: background 150ms ease, border-color 150ms ease, transform 130ms ease;
+}
+
+.codes-pill-btn svg {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .codes-pill-btn:hover {
   border-color: var(--gold);
+}
+
+.codes-pill-btn:hover svg {
+  transform: rotate(-10deg) scale(1.06);
+}
+
+.codes-pill-btn:active {
+  transform: scale(0.96);
 }
 
 .codes-pill-count {
@@ -2341,12 +3070,16 @@
   background: var(--bg-subtle);
   color: var(--text-1);
   font-size: 12px;
-  transition: border-color 150ms ease, background 150ms ease;
+  transition: border-color 150ms ease, background 150ms ease, transform 130ms ease;
 }
 
 .code-chip-btn:hover {
   border-color: var(--border-strong);
   background: var(--surface-hover);
+}
+
+.code-chip-btn:active {
+  transform: scale(0.96);
 }
 
 .code-chip-btn.is-copied {
@@ -2356,6 +3089,7 @@
 
 .code-chip-copied-icon {
   color: var(--gold-text);
+  animation: check-pop 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .code-chip-code {

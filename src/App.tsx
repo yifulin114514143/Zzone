@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { ArrowUp } from "lucide-react";
 import { REDEEM_CODES } from "./industry/codes";
 import { localizeEvent, localizeMerch } from "./industry/localizedData";
@@ -37,8 +38,8 @@ function getInitialTab(): NavTab {
 
 const MERCH_CHECK_TOAST: Record<AppLang, { ok: string; fallback: string; backTop: string }> = {
   zh: {
-    ok: "已完成米游铺与天猫旗舰店定期上新巡检（当前均为最新）",
-    fallback: "已刷新周边列表（接入米游铺号池后将自动实时增量推送）",
+    ok: "已同步米游铺最新商品目录（当前均为最新）",
+    fallback: "已刷新周边目录",
     backTop: "返回顶部",
   },
   ja: {
@@ -88,6 +89,7 @@ export const App: React.FC = () => {
   );
   const [toast, setToast] = useState<string | null>(null);
   const syncSeqRef = useRef(0);
+  const themeTransitionRef = useRef<{ skipTransition?: () => void } | null>(null);
 
   const t = UI_DICT[lang];
 
@@ -159,9 +161,10 @@ export const App: React.FC = () => {
         setSyncedAt(res.syncedAt);
 
         try {
+          const qs = forceRefresh ? "?refresh=1" : "";
           const [evRes, mRes] = await Promise.all([
-            fetch("/api/v1/events"),
-            fetch("/api/v1/merch"),
+            fetch(`/api/v1/events${qs}`),
+            fetch(`/api/v1/merch${qs}`),
           ]);
           if (evRes.ok) {
             const evJson = await evRes.json();
@@ -181,10 +184,17 @@ export const App: React.FC = () => {
             if (Array.isArray(mJson?.pushedMerch) && mJson.pushedMerch.length > 0) {
               setMerch((prev) => {
                 const existing = new Set(prev.map((x) => x.id));
-                const additions = (mJson.pushedMerch as MerchItem[]).filter(
-                  (x) => !existing.has(x.id)
-                );
-                return additions.length ? [...additions, ...prev] : prev;
+                const additions = (mJson.pushedMerch as MerchItem[])
+                  .filter((x) => !existing.has(x.id))
+                  .map((x) => ({
+                    ...x,
+                    merchLine:
+                      x.merchLine ||
+                      (x.cadence === "collab_drop" || x.category === "collab_merch"
+                        ? "collab"
+                        : "game"),
+                  }));
+                return additions.length ? [...prev, ...additions] : prev;
               });
             }
           }
@@ -215,17 +225,24 @@ export const App: React.FC = () => {
     setIsCheckingMerch(true);
     const copy = MERCH_CHECK_TOAST[lang];
     try {
-      const res = await fetch("/api/v1/merch");
+      const res = await fetch("/api/v1/merch?refresh=1");
       if (res.ok) {
         const json = await res.json();
         setMerchCheckedAt(json.lastCheckedAt || new Date().toISOString());
         if (Array.isArray(json.pushedMerch) && json.pushedMerch.length > 0) {
           setMerch((prev) => {
             const existing = new Set(prev.map((x) => x.id));
-            const additions = (json.pushedMerch as MerchItem[]).filter(
-              (x) => !existing.has(x.id)
-            );
-            return additions.length ? [...additions, ...prev] : prev;
+            const additions = (json.pushedMerch as MerchItem[])
+              .filter((x) => !existing.has(x.id))
+              .map((x) => ({
+                ...x,
+                merchLine:
+                  x.merchLine ||
+                  (x.cadence === "collab_drop" || x.category === "collab_merch"
+                    ? "collab"
+                    : "game"),
+              }));
+            return additions.length ? [...prev, ...additions] : prev;
           });
         }
         showToast(copy.ok);
@@ -242,21 +259,94 @@ export const App: React.FC = () => {
   }, [lang, showToast]);
 
   const handleToggleTheme = useCallback(
-    (next: ThemeMode, ev: React.MouseEvent) => {
+    (next: ThemeMode, ev: React.MouseEvent<HTMLButtonElement>) => {
       if (next === theme) return;
-      document.documentElement.style.setProperty("--vt-x", `${ev.clientX}px`);
-      document.documentElement.style.setProperty("--vt-y", `${ev.clientY}px`);
 
-      const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
-      if (doc.startViewTransition) {
-        doc.startViewTransition(() => {
+      const rect = ev.currentTarget.getBoundingClientRect();
+      const hasPointer = ev.clientX > 0 || ev.clientY > 0;
+      const x = Math.round(hasPointer ? ev.clientX : rect.left + rect.width / 2);
+      const y = Math.round(hasPointer ? ev.clientY : rect.top + rect.height / 2);
+      const endRadius = Math.ceil(
+        Math.hypot(
+          Math.max(x, window.innerWidth - x),
+          Math.max(y, window.innerHeight - y)
+        )
+      );
+
+      const prefersReduced =
+        typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+      const doc = document as Document & {
+        startViewTransition?: (cb: () => void) => {
+          ready: Promise<void>;
+          finished: Promise<void>;
+          skipTransition?: () => void;
+        };
+      };
+
+      // Cancel any in-flight theme transition cleanly so rapid clicks never flash
+      try {
+        themeTransitionRef.current?.skipTransition?.();
+      } catch {
+        // ignore
+      }
+      themeTransitionRef.current = null;
+
+      if (!doc.startViewTransition || prefersReduced) {
+        saveTheme(next);
+        setTheme(next);
+        return;
+      }
+
+      const isToDark = next === "dark";
+      const root = document.documentElement;
+      root.style.setProperty("--vt-x", `${x}px`);
+      root.style.setProperty("--vt-y", `${y}px`);
+      root.style.setProperty("--vt-r", `${endRadius}px`);
+      root.classList.remove("vt-to-dark", "vt-to-light", "theme-no-transition");
+      root.classList.add("theme-no-transition", isToDark ? "vt-to-dark" : "vt-to-light");
+
+      const transition = doc.startViewTransition(() => {
+        flushSync(() => {
           saveTheme(next);
           setTheme(next);
         });
-      } else {
-        saveTheme(next);
-        setTheme(next);
-      }
+        // Force synchronous style commit so the captured new snapshot has final theme colors (no mid-transition flash)
+        void root.offsetWidth;
+      });
+      themeTransitionRef.current = transition;
+
+      transition.ready
+        .then(() => {
+          const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ];
+          root.animate(
+            {
+              clipPath: isToDark ? [...clipPath].reverse() : clipPath,
+            },
+            {
+              duration: isToDark ? 380 : 420,
+              easing: isToDark
+                ? "cubic-bezier(0.4, 0, 0.2, 1)"
+                : "cubic-bezier(0.22, 1, 0.36, 1)",
+              fill: "forwards",
+              pseudoElement: isToDark
+                ? "::view-transition-old(root)"
+                : "::view-transition-new(root)",
+            }
+          );
+        })
+        .catch(() => {});
+
+      transition.finished.finally(() => {
+        if (themeTransitionRef.current === transition) {
+          themeTransitionRef.current = null;
+        }
+        root.classList.remove("vt-to-dark", "vt-to-light", "theme-no-transition");
+      });
     },
     [theme]
   );
@@ -446,17 +536,17 @@ export const App: React.FC = () => {
 
       <MobileDock activeTab={activeTab} onNavigate={navigate} />
 
-      {showBackTop && (
-        <button
-          type="button"
-          className="back-to-top-btn"
-          aria-label={MERCH_CHECK_TOAST[lang].backTop}
-          title={MERCH_CHECK_TOAST[lang].backTop}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          <ArrowUp size={14} />
-        </button>
-      )}
+      <button
+        type="button"
+        className={`back-to-top-btn ${showBackTop ? "is-visible" : ""}`}
+        aria-label={MERCH_CHECK_TOAST[lang].backTop}
+        aria-hidden={!showBackTop}
+        tabIndex={showBackTop ? 0 : -1}
+        title={MERCH_CHECK_TOAST[lang].backTop}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
+        <ArrowUp size={14} />
+      </button>
 
       <GlobalSearchModal
         open={searchOpen}

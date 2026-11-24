@@ -1,6 +1,7 @@
 import type { CollectorSourceInfo } from "./site";
 import type { MerchItem, OfflineEvent, RedeemCode } from "./types";
 import type { AppLang } from "../lib/i18n";
+import { ARCHIVE_EVENT_I18N, ARCHIVE_MERCH_I18N, patchExtraSource } from "./archiveLocalizedData";
 
 /**
  * Strictly verified official in-game Zenless Zone Zero nomenclature across JA / KO / EN:
@@ -1079,13 +1080,13 @@ const MERCH_EXTRA_I18N: Record<Exclude<AppLang, "zh">, Record<string, MerchExtra
 
 export function localizeEvent(ev: OfflineEvent, lang: AppLang): OfflineEvent {
   if (lang === "zh") return ev;
-  const patch = EVENT_I18N[lang]?.[ev.id];
+  const patch = EVENT_I18N[lang]?.[ev.id] || ARCHIVE_EVENT_I18N[lang]?.[ev.id];
   return patch ? { ...ev, ...patch } : ev;
 }
 
 export function localizeMerch(item: MerchItem, lang: AppLang): MerchItem {
   if (lang === "zh") return item;
-  const patch = MERCH_I18N[lang]?.[item.id];
+  const patch = MERCH_I18N[lang]?.[item.id] || ARCHIVE_MERCH_I18N[lang]?.[item.id];
   const extra = MERCH_EXTRA_I18N[lang]?.[item.id];
   return { ...item, ...(patch || {}), ...(extra || {}) };
 }
@@ -1153,7 +1154,8 @@ export function localizeSource(src: CollectorSourceInfo, lang: AppLang): Collect
     },
   };
   const found = map[lang]?.[src.id];
-  return found
-    ? { ...src, name: found.name, desc: found.desc, handle: found.handle ?? src.handle }
-    : src;
+  if (found) {
+    return { ...src, name: found.name, desc: found.desc, handle: found.handle ?? src.handle };
+  }
+  return patchExtraSource(src, lang);
 }

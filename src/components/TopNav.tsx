@@ -28,7 +28,7 @@ interface TopNavProps {
   onOpenSearch: () => void;
   onOpenCodes: () => void;
   theme: ThemeMode;
-  onToggleTheme: (next: ThemeMode, ev: React.MouseEvent) => void;
+  onToggleTheme: (next: ThemeMode, ev: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const DESKTOP_TABS: Array<{ id: NavTab; icon: React.ReactNode }> = [
@@ -147,7 +147,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                 className="nav-sliding-indicator"
                 aria-hidden="true"
                 style={{
-                  transform: `translate3d(${pillStyle.left}px, 0, 0)`,
+                  transform: `translateX(${pillStyle.left}px)`,
                   width: `${pillStyle.width}px`,
                 }}
               />
@@ -246,12 +246,17 @@ export const TopNav: React.FC<TopNavProps> = ({
 
               <button
                 type="button"
-                className="utility-icon-btn"
+                className={`utility-icon-btn theme-toggle-btn ${theme === "dark" ? "is-dark" : "is-light"}`}
                 aria-label={theme === "dark" ? t.themeToLight : t.themeToDark}
                 title={theme === "dark" ? t.themeToLight : t.themeToDark}
                 onClick={(e) => onToggleTheme(theme === "dark" ? "light" : "dark", e)}
               >
-                {theme === "dark" ? <Sun size={14.5} /> : <Moon size={14.5} />}
+                <span className="theme-icon-layer theme-icon-sun" aria-hidden="true">
+                  <Sun size={14.5} />
+                </span>
+                <span className="theme-icon-layer theme-icon-moon" aria-hidden="true">
+                  <Moon size={14.5} />
+                </span>
               </button>
             </div>
           </div>

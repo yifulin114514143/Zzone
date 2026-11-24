@@ -24,6 +24,18 @@ export const SOURCE_PLATFORM_META: Record<
     color: "#fb7185",
     bg: "rgba(251, 113, 133, 0.15)",
   },
+  "zzz-kr": {
+    name: "绝区零韩服官网 · 韩国专属",
+    short: "韩服官网",
+    color: "#38bdf8",
+    bg: "rgba(56, 189, 248, 0.15)",
+  },
+  "zzz-tw": {
+    name: "绝区零繁中官网 · 港澳台",
+    short: "繁中官网",
+    color: "#fbbf24",
+    bg: "rgba(251, 191, 36, 0.15)",
+  },
   miyoushe: {
     name: "米游社绝区零官方",
     short: "米游社",
@@ -60,6 +72,12 @@ export const SOURCE_PLATFORM_META: Record<
     color: "#f59e0b",
     bg: "rgba(245, 158, 11, 0.15)",
   },
+  naver: {
+    name: "Naver Lounge 绝区零韩服官方",
+    short: "Naver 韩服",
+    color: "#34d399",
+    bg: "rgba(52, 211, 153, 0.15)",
+  },
   tmall: {
     name: "绝区零三Z官方旗舰店",
     short: "天猫三Z店",
@@ -73,10 +91,16 @@ export const SOURCE_PLATFORM_META: Record<
     bg: "rgba(245, 183, 59, 0.15)",
   },
   apex: {
-    name: "APEX-TOYS / GSC 手办官厂",
+    name: "APEX-TOYS / GSC / 万代官厂",
     short: "手办官厂",
     color: "#fbbf24",
     bg: "rgba(251, 191, 36, 0.15)",
+  },
+  amiami: {
+    name: "AmiAmi / Fantasy Village / GiGO",
+    short: "日区周边/景品",
+    color: "#fb7185",
+    bg: "rgba(251, 113, 133, 0.15)",
   },
   hpoi: {
     name: "Hpoi 手办维基",
@@ -89,6 +113,12 @@ export const SOURCE_PLATFORM_META: Record<
     short: "CPP 同人",
     color: "#a78bfa",
     bg: "rgba(167, 139, 250, 0.15)",
+  },
+  comiket: {
+    name: "Comiket / 赤ブー / 海外大型漫展",
+    short: "海外漫展/同人",
+    color: "#c084fc",
+    bg: "rgba(192, 132, 252, 0.15)",
   },
   ticket: {
     name: "B站会员购 & 大麦网",

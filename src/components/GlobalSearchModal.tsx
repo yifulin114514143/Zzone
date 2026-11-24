@@ -112,7 +112,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             `${m.name} ${m.series} ${m.characterOrFaction} ${m.summary} ${m.channels.join(" ")}`
           )
         )
-        .slice(0, 4),
+        .slice(0, 6),
       codes: localizedCodes.filter((c) =>
         matches(`兑换码 交換コード 리딤코드 code codes polychrome 菲林 ${c.code} ${c.rewards} ${c.note} ${c.regionLabel}`)
       ),
@@ -365,7 +365,24 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                         <div className="search-row-main">
                           <strong>{m.name}</strong>
                           <span className="search-row-sub">
-                            {m.series} · {m.priceText} · {t.photosCount(m.gallery.length)}
+                            {m.merchLine === "collab"
+                              ? lang === "zh"
+                                ? "品牌联动"
+                                : lang === "ja"
+                                ? "コラボ"
+                                : lang === "ko"
+                                ? "콜라보"
+                                : "Collab"
+                              : lang === "zh"
+                              ? "游戏周边"
+                              : lang === "ja"
+                              ? "公式グッズ"
+                              : lang === "ko"
+                              ? "공식 굿즈"
+                              : "Game Merch"}
+                            {" · "}
+                            {m.series} · {m.priceText}
+                            {m.gallery.length > 1 ? ` · ${t.photosCount(m.gallery.length)}` : ""}
                           </span>
                         </div>
                         <span className="search-row-action">{t.actionDetail}</span>
