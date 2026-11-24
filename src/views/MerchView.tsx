@@ -146,7 +146,6 @@ export const MerchView: React.FC<MerchViewProps> = ({
       {/* Header */}
       <div className="section-head" style={{ marginBottom: 0 }}>
         <div className="section-title-group">
-          <span className="section-kicker">{t.merchKicker}</span>
           <h1 className="section-title">{t.merchTitle}</h1>
         </div>
         <button
@@ -169,26 +168,24 @@ export const MerchView: React.FC<MerchViewProps> = ({
           alignItems: "center",
           justifyContent: "space-between",
           gap: 14,
-          background:
-            "radial-gradient(45% 120% at 0% 50%, var(--brand-soft), transparent 70%), var(--surface)",
-          borderColor: "var(--brand-border)",
+          padding: "14px 18px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: 12,
-              background: "var(--brand-soft)",
-              border: "1px solid var(--brand-border)",
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "var(--bg-subtle)",
+              border: "1px solid var(--border)",
               display: "grid",
               placeItems: "center",
-              color: "var(--brand-text)",
+              color: "var(--text-2)",
               flexShrink: 0,
             }}
           >
-            <Store size={20} />
+            <Store size={17} />
           </div>
           <div>
             <div style={{ fontSize: 14.5, fontWeight: 800 }}>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Bookmark, Flame } from "lucide-react";
+import { Bookmark, Images } from "lucide-react";
 import { CATEGORY_META } from "../industry/site";
 import type { NewsItem } from "../industry/types";
 import { hexAlpha } from "../lib/color";
@@ -26,6 +26,8 @@ export const NewsCard: React.FC<NewsCardProps> = ({
   const cat = CATEGORY_META[item.category];
   const catLabel = CAT_LABELS[lang][item.category] || cat.label;
   const cd = item.deadlineAt ? getCountdown(item.deadlineAt) : null;
+  const galleryCount = item.gallery?.length ?? 0;
+  const hasRealFooterMeta = (cd && !cd.expired) || galleryCount > 1;
 
   return (
     <article className={`news-card ${isRead ? "read" : ""}`}>
@@ -35,13 +37,10 @@ export const NewsCard: React.FC<NewsCardProps> = ({
         ) : (
           <div
             className="news-media-fallback"
-            style={{ "--fc-glow": hexAlpha(cat.color, 0.34) } as React.CSSProperties}
+            style={{ "--fc-glow": hexAlpha(cat.color, 0.24) } as React.CSSProperties}
           >
             <div style={{ marginTop: "auto" }}>
-              <div className="mono" style={{ fontSize: 10.5, opacity: 0.62, marginBottom: 4 }}>
-                ZZONE · {cat.stamp}
-              </div>
-              <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: "-0.02em" }}>
+              <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em" }}>
                 {catLabel}
               </div>
               <div style={{ fontSize: 12, opacity: 0.72, marginTop: 4 }}>{item.source}</div>
@@ -63,7 +62,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
             }}
             aria-label={isBookmarked ? t.toastUnbookmarked : t.toastBookmarked}
           >
-            <Bookmark size={14} fill={isBookmarked ? "currentColor" : "none"} />
+            <Bookmark size={13.5} fill={isBookmarked ? "currentColor" : "none"} />
           </button>
         </div>
       </div>
@@ -84,18 +83,24 @@ export const NewsCard: React.FC<NewsCardProps> = ({
 
         <p className="news-excerpt">{item.summary}</p>
 
-        <div className="news-foot">
-          <span className="heat-pill">
-            <Flame size={13} />
-            {item.heat} {t.heatLabel}
-          </span>
+        {hasRealFooterMeta && (
+          <div className="news-foot">
+            {galleryCount > 1 ? (
+              <span className="mono" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <Images size={12} /> {t.photosCount(galleryCount)}
+              </span>
+            ) : (
+              <span />
+            )}
 
-          {cd && !cd.expired ? (
-            <span className="deadline-tag">{t.daysLeft(cd.days)}</span>
-          ) : (
-            <span className="mono">{t.sourcesMentioned(item.sourceCount)}</span>
-          )}
-        </div>
+            {cd && !cd.expired && (
+              <span className="deadline-tag">
+                {item.deadlineLabel ? `${item.deadlineLabel} · ` : ""}
+                {t.daysLeft(cd.days)}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );

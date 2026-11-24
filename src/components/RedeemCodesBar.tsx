@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { ArrowRight, Copy, ExternalLink, Ticket, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowRight, Check, Copy, ExternalLink, Ticket, X } from "lucide-react";
 import { REDEEM_CODES } from "../industry/codes";
 import { localizeCode } from "../industry/localizedData";
 import { useI18n } from "../lib/i18n";
@@ -15,35 +15,51 @@ export const RedeemCodesStrip: React.FC<RedeemCodesStripProps> = ({
   onOpenModal,
 }) => {
   const { lang, t } = useI18n();
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const activeCodes = REDEEM_CODES.filter((c) => c.status !== "expired").map((c) =>
     localizeCode(c, lang)
   );
   if (activeCodes.length === 0) return null;
 
+  const handleCopy = (code: string) => {
+    onCopyCode(code);
+    setCopiedCode(code);
+    window.setTimeout(() => {
+      setCopiedCode((prev) => (prev === code ? null : prev));
+    }, 1600);
+  };
+
   return (
     <section className="codes-strip" aria-label={t.codesBarBadge}>
       <div className="codes-strip-label">
-        <span className="codes-strip-badge">
+        <span className="codes-strip-icon-badge" aria-hidden="true">
           <Ticket size={14} />
-          {t.codesBarBadge}
         </span>
-        <span className="codes-strip-hint hide-sm">{t.codesBarHint}</span>
+        <div className="codes-strip-text">
+          <span className="codes-strip-badge">{t.codesBarBadge}</span>
+          <span className="codes-strip-hint hide-sm">{t.codesBarHint}</span>
+        </div>
       </div>
 
       <div className="codes-strip-list">
         {activeCodes.map((c) => {
           const rewardShort = c.rewards.split("·")[0].trim();
+          const isCopied = copiedCode === c.code;
           return (
             <button
               key={c.code}
               type="button"
-              className="code-chip-btn"
-              onClick={() => onCopyCode(c.code)}
+              className={`code-chip-btn ${isCopied ? "is-copied" : ""}`}
+              onClick={() => handleCopy(c.code)}
               title={`${c.rewards} (${c.regionLabel})`}
             >
               <strong className="mono code-chip-code">{c.code}</strong>
               <span className="code-chip-reward">{rewardShort}</span>
-              <Copy size={12} className="code-chip-copy" />
+              {isCopied ? (
+                <Check size={12.5} className="code-chip-copied-icon" />
+              ) : (
+                <Copy size={12} className="code-chip-copy" />
+              )}
             </button>
           );
         })}

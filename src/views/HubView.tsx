@@ -132,7 +132,6 @@ cp Caddyfile.example Caddyfile && caddy start`;
       <section>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">{t.hubKicker}</span>
             <h1 className="section-title">{t.hubTitle}</h1>
           </div>
           <button type="button" className="btn-primary" onClick={onSync} disabled={isSyncing}>
@@ -289,7 +288,6 @@ cp Caddyfile.example Caddyfile && caddy start`;
       <section>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">{t.bookmarksKicker}</span>
             <h2 className="section-title">{t.bookmarksTitle(savedNews.length)}</h2>
           </div>
         </div>

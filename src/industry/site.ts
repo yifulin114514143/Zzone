@@ -2,7 +2,7 @@ import type { NewsCategory, SourcePlatformKey } from "./types";
 
 export const SITE = {
   name: "Zzone",
-  version: "v2.0",
+  version: "v3.0",
   enName: "ZZONE · NEW ERIDU",
   domain: "zzone.app",
   tagline: "绝区零全生态实时情报 · 线下活动 · 官方周边定期追踪",

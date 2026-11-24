@@ -454,7 +454,7 @@ export const App: React.FC = () => {
           title={MERCH_CHECK_TOAST[lang].backTop}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <ArrowUp size={17} />
+          <ArrowUp size={14} />
         </button>
       )}
 
@@ -486,7 +486,6 @@ export const App: React.FC = () => {
 
       {toast && (
         <div className="toast" role="status" aria-live="polite">
-          <span>✦</span>
           <span>{toast}</span>
         </div>
       )}

@@ -8,119 +8,120 @@
   color-scheme: dark;
 
   /* Deep Obsidian Velvet Surfaces */
-  --bg: #0b0c11;
-  --bg-subtle: #12141c;
-  --surface: #171a24;
-  --surface-hover: #1e2230;
-  --surface-elevated: #232838;
-  --glass: rgba(13, 15, 22, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.085);
-  --border: rgba(255, 255, 255, 0.085);
+  --bg: #090b10;
+  --bg-subtle: #11141d;
+  --surface: #151924;
+  --surface-hover: #1c2130;
+  --surface-elevated: #222839;
+  --glass: rgba(13, 16, 24, 0.78);
+  --glass-scrolled: rgba(11, 13, 20, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
+  --surface-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.075);
+  --grid-dot: rgba(255, 255, 255, 0.048);
 
   --text-1: #f5f7fb;
-  --text-2: #b6bfd1;
-  --text-3: #7d879c;
+  --text-2: #b4bdd0;
+  --text-3: #7d889e;
 
-  /* Primary Brand Accent — Anby Sunset Ember Orange */
-  --brand: #ff5a1f;
-  --brand-2: #ff8c38;
-  --brand-grad: linear-gradient(135deg, #ff5a1f 0%, #ff8c38 100%);
+  /* Primary Brand Accent — Clean Solid Sunset Ember (No gaudy gradient) */
+  --brand: #ea541d;
+  --brand-2: #f46b34;
+  --brand-grad: #ea541d;
   --brand-ink: #ffffff;
-  --brand-text: #ff7a45;
-  --brand-soft: rgba(255, 90, 31, 0.15);
-  --brand-border: rgba(255, 90, 31, 0.36);
+  --brand-text: #f37645;
+  --brand-soft: rgba(234, 84, 29, 0.13);
+  --brand-border: rgba(234, 84, 29, 0.34);
 
-  /* Secondary Highlight — Champagne S-Rank Gold */
-  --gold: #f5b73b;
-  --gold-text: #fbcb62;
-  --gold-soft: rgba(245, 183, 59, 0.15);
-  --gold-border: rgba(245, 183, 59, 0.34);
+  /* Secondary Highlight — Muted Champagne Gold */
+  --gold: #e5a935;
+  --gold-text: #e9be63;
+  --gold-soft: rgba(229, 169, 53, 0.12);
+  --gold-border: rgba(229, 169, 53, 0.28);
 
-  /* Accent Companions — Cobalt Sky & Iris Violet (Zero harsh green!) */
+  /* Accent Companions — Muted Sky & Iris */
   --sky: #38bdf8;
-  --sky-soft: rgba(56, 189, 248, 0.14);
-  --sky-border: rgba(56, 189, 248, 0.32);
+  --sky-soft: rgba(56, 189, 248, 0.12);
+  --sky-border: rgba(56, 189, 248, 0.28);
 
   --violet: #a78bfa;
-  --violet-soft: rgba(167, 139, 250, 0.15);
-  --violet-border: rgba(167, 139, 250, 0.34);
+  --violet-soft: rgba(167, 139, 250, 0.13);
+  --violet-border: rgba(167, 139, 250, 0.3);
 
   --rose: #fb7185;
-  --rose-soft: rgba(251, 113, 133, 0.15);
+  --rose-soft: rgba(251, 113, 133, 0.13);
 
-  /* Subtle online indicator only */
   --live-dot: #38bdf8;
 
-  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.26);
-  --shadow-md: 0 14px 36px rgba(0, 0, 0, 0.42);
-  --shadow-lg: 0 26px 68px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 22px 54px rgba(0, 0, 0, 0.56);
 
-  --ambient-top:
-    radial-gradient(58% 42% at 14% -6%, rgba(255, 90, 31, 0.12), transparent 70%),
-    radial-gradient(52% 40% at 88% -4%, rgba(139, 92, 246, 0.1), transparent 70%);
+  --ambient-top: radial-gradient(60% 26% at 50% -8%, rgba(255, 255, 255, 0.035), transparent 72%);
 
   --font-brand: "Outfit", "Inter", sans-serif;
   --font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --r-sm: 10px;
-  --r-md: 16px;
-  --r-lg: 22px;
-  --r-xl: 28px;
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-lg: 14px;
+  --r-xl: 18px;
   --r-pill: 999px;
 }
 
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f6f7fa;
-  --bg-subtle: #eceef4;
+  --bg: #f5f6f8;
+  --bg-subtle: #eceef3;
   --surface: #ffffff;
-  --surface-hover: #fafbfe;
+  --surface-hover: #f8f9fc;
   --surface-elevated: #ffffff;
-  --glass: rgba(255, 255, 255, 0.86);
-  --glass-border: rgba(15, 23, 42, 0.08);
-  --border: rgba(15, 23, 42, 0.085);
+  --glass: rgba(255, 255, 255, 0.84);
+  --glass-scrolled: rgba(255, 255, 255, 0.94);
+  --glass-border: rgba(15, 23, 42, 0.085);
+  --border: rgba(15, 23, 42, 0.08);
   --border-strong: rgba(15, 23, 42, 0.16);
+  --surface-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --grid-dot: transparent;
 
   --text-1: #11131a;
   --text-2: #4b5468;
-  --text-3: #838ca1;
+  --text-3: #7e879c;
 
-  --brand: #e84b14;
-  --brand-2: #f97316;
-  --brand-grad: linear-gradient(135deg, #e84b14 0%, #f97316 100%);
+  --brand: #dc4a15;
+  --brand-2: #ea580c;
+  --brand-grad: #dc4a15;
   --brand-ink: #ffffff;
-  --brand-text: #d9410c;
-  --brand-soft: rgba(232, 75, 20, 0.1);
-  --brand-border: rgba(232, 75, 20, 0.28);
+  --brand-text: #c9400e;
+  --brand-soft: rgba(220, 74, 21, 0.09);
+  --brand-border: rgba(220, 74, 21, 0.26);
 
-  --gold: #d99316;
-  --gold-text: #b47306;
-  --gold-soft: rgba(217, 147, 22, 0.12);
-  --gold-border: rgba(217, 147, 22, 0.3);
+  --gold: #c98814;
+  --gold-text: #a16808;
+  --gold-soft: rgba(201, 136, 20, 0.1);
+  --gold-border: rgba(201, 136, 20, 0.26);
 
   --sky: #0284c7;
-  --sky-soft: rgba(2, 132, 199, 0.1);
-  --sky-border: rgba(2, 132, 199, 0.28);
+  --sky-soft: rgba(2, 132, 199, 0.09);
+  --sky-border: rgba(2, 132, 199, 0.25);
 
   --violet: #7c3aed;
-  --violet-soft: rgba(124, 58, 237, 0.1);
-  --violet-border: rgba(124, 58, 237, 0.28);
+  --violet-soft: rgba(124, 58, 237, 0.09);
+  --violet-border: rgba(124, 58, 237, 0.25);
 
   --rose: #e11d48;
-  --rose-soft: rgba(225, 29, 72, 0.1);
+  --rose-soft: rgba(225, 29, 72, 0.09);
 
   --live-dot: #0284c7;
 
-  --shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.045);
-  --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.075);
-  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.14);
+  --shadow-sm: 0 1px 4px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.14);
 
-  --ambient-top:
-    radial-gradient(58% 42% at 14% -6%, rgba(255, 90, 31, 0.09), transparent 70%),
-    radial-gradient(52% 40% at 88% -4%, rgba(124, 58, 237, 0.07), transparent 70%);
+  --ambient-top: none;
 }
 
 *,
@@ -146,6 +147,12 @@ body {
   line-height: 1.6;
   min-height: 100dvh;
   overflow-x: hidden;
+  position: relative;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 a {

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { ArrowDownWideNarrow, Flame, RefreshCw, Search, Sparkles, X } from "lucide-react";
+import { ArrowDownWideNarrow, RefreshCw, Search, X } from "lucide-react";
 import type { NewsCategory, NewsItem, SourcePlatformKey } from "../industry/types";
 import { CAT_LABELS, PLATFORM_LABELS, useI18n } from "../lib/i18n";
 import { sortNewsByPriority } from "../lib/ranking";
@@ -54,7 +54,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
   const { lang, t } = useI18n();
   const [cat, setCat] = useState<NewsCategory | "all">("all");
   const [platform, setPlatform] = useState<SourcePlatformKey | "all">("all");
-  const [sortBy, setSortBy] = useState<"priority" | "latest" | "heat">("priority");
+  const [sortBy, setSortBy] = useState<"priority" | "latest">("priority");
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -73,9 +73,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
     if (sortBy === "priority") {
       return sortNewsByPriority(list);
     }
-    if (sortBy === "heat") {
-      return [...list].sort((a, b) => b.heat - a.heat);
-    }
     return [...list].sort(
       (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     );
@@ -85,7 +82,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div className="section-head" style={{ marginBottom: 0 }}>
         <div className="section-title-group">
-          <span className="section-kicker">{t.feedKicker}</span>
           <h1 className="section-title">{t.feedTitle}</h1>
         </div>
         <button type="button" className="btn-primary" onClick={onSync} disabled={isSyncing}>
@@ -149,7 +145,7 @@ export const FeedView: React.FC<FeedViewProps> = ({
                 className={`sort-pill-btn ${sortBy === "priority" ? "active" : ""}`}
                 onClick={() => setSortBy("priority")}
               >
-                <Sparkles size={12} /> {t.sortPriority}
+                {t.sortPriority}
               </button>
               <button
                 type="button"
@@ -157,13 +153,6 @@ export const FeedView: React.FC<FeedViewProps> = ({
                 onClick={() => setSortBy("latest")}
               >
                 <ArrowDownWideNarrow size={12} /> {t.sortLatest}
-              </button>
-              <button
-                type="button"
-                className={`sort-pill-btn ${sortBy === "heat" ? "active" : ""}`}
-                onClick={() => setSortBy("heat")}
-              >
-                <Flame size={12} /> {t.sortHeat}
               </button>
             </div>
 

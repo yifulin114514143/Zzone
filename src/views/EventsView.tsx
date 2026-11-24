@@ -447,7 +447,6 @@ export const EventsView: React.FC<EventsViewProps> = ({
       {/* Header */}
       <div className="section-head" style={{ marginBottom: 0 }}>
         <div className="section-title-group">
-          <span className="section-kicker">{t.eventsKicker}</span>
           <h1 className="section-title">{t.eventsTitle}</h1>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>

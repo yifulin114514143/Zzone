@@ -7,7 +7,6 @@ import {
   Images,
   MapPin,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { MERCH_CADENCE_META } from "../industry/merch";
@@ -19,7 +18,7 @@ import type {
   OfflineEvent,
   SourcePlatformKey,
 } from "../industry/types";
-import { MERCH_CADENCE_LABELS, useI18n } from "../lib/i18n";
+import { MERCH_CADENCE_LABELS, PLATFORM_LABELS, useI18n } from "../lib/i18n";
 import {
   partitionAndSortEvents,
   pickDiverseHomeNews,
@@ -30,7 +29,7 @@ import { formatSlashMD } from "../lib/time";
 import { LiveCountdownGrid } from "../components/LiveCountdownGrid";
 import { NewsCard } from "../components/NewsCard";
 import { RedeemCodesStrip } from "../components/RedeemCodesBar";
-import { SourceBadge } from "../components/SourceIcon";
+import { SOURCE_PLATFORM_META, SourceBadge } from "../components/SourceIcon";
 
 interface HomeViewProps {
   news: NewsItem[];
@@ -205,11 +204,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="hero-scrim" />
 
             <div className="hero-top-bar">
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span className="hero-tag-glass">
-                  <Sparkles size={13} color="#ff8c38" />
-                  {activeSlide.tag}
-                </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span className="hero-tag-glass">{activeSlide.tag}</span>
                 <SourceBadge platform={activeSlide.source} />
               </div>
 
@@ -222,7 +218,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     setSlideIdx((i) => (i - 1 + heroSlides.length) % heroSlides.length)
                   }
                 >
-                  <ChevronLeft size={17} />
+                  <ChevronLeft size={16} />
                 </button>
                 <button
                   type="button"
@@ -230,13 +226,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   aria-label="Next"
                   onClick={() => setSlideIdx((i) => (i + 1) % heroSlides.length)}
                 >
-                  <ChevronRight size={17} />
+                  <ChevronRight size={16} />
                 </button>
               </div>
             </div>
 
             <div className="hero-content">
-              <div className="mono" style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
+              <div className="mono" style={{ fontSize: 12, color: "rgba(255,255,255,0.78)" }}>
                 {activeSlide.dateLabel}
               </div>
 
@@ -252,15 +248,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </button>
 
                 <div className="hero-dots" role="tablist">
-                  {heroSlides.map((sl, idx) => (
-                    <button
-                      key={sl.id}
-                      type="button"
-                      className={`hero-dot ${idx === slideIdx % heroSlides.length ? "active" : ""}`}
-                      onClick={() => setSlideIdx(idx)}
-                      aria-label={sl.tag}
-                    />
-                  ))}
+                  {heroSlides.map((sl, idx) => {
+                    const isActive = idx === slideIdx % heroSlides.length;
+                    return (
+                      <button
+                        key={sl.id}
+                        type="button"
+                        className={`hero-dot ${isActive ? "active" : ""}`}
+                        onClick={() => setSlideIdx(idx)}
+                        aria-label={sl.tag}
+                      >
+                        {isActive && <span key={`${sl.id}-${slideIdx}`} className="hero-dot-fill" />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -319,8 +320,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           <div className="dock-card" style={{ flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 800 }}>
-                <span className="live-dot" />
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>
+                <span className="live-dot-quiet" />
                 {t.multiSourceTitle}
               </span>
               <button
@@ -333,18 +334,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </button>
             </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {COLLECTOR_SOURCES.slice(0, 6).map((src) => (
-                <a
-                  key={src.id}
-                  href={src.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  title={`${src.name} (${src.handle})`}
-                >
-                  <SourceBadge platform={src.platform} />
-                </a>
-              ))}
+            <div className="dock-source-line">
+              {COLLECTOR_SOURCES.slice(0, 5)
+                .map((src) => PLATFORM_LABELS[lang]?.[src.platform] || SOURCE_PLATFORM_META[src.platform]?.name)
+                .join(" · ")}
             </div>
 
             <div className="mini-feed-list" style={{ marginTop: 2 }}>
@@ -369,11 +362,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <section aria-label={t.homeUpcomingTitle}>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">{t.homeUpcomingKicker}</span>
             <h2 className="section-title">{t.homeUpcomingTitle}</h2>
           </div>
           <button type="button" className="ghost-link" onClick={() => onNavigate("events")}>
-            {t.viewAllEvents} ({events.length}) <ArrowRight size={15} />
+            {t.viewAllEvents} ({events.length}) <ArrowRight size={14} />
           </button>
         </div>
 
@@ -389,32 +381,31 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="merch-photo-scrim" />
                 <div className="media-overlay-top">
                   <span className={ev.official ? "badge-official" : "badge-unofficial"}>
-                    {ev.official ? <ShieldCheck size={12} /> : <Users size={12} />}
+                    {ev.official ? <ShieldCheck size={11.5} /> : <Users size={11.5} />}
                     {ev.official ? t.officialMajorBadge : t.fanEventBadge}
                   </span>
-                  <span className="badge-status">
-                    {ev.city} · {ev.dateRange}
-                  </span>
-                </div>
-                <div className="merch-photo-bottom">
-                  <SourceBadge platform={ev.sourcePlatform} />
                   {ev.gallery.length > 1 && (
                     <span className="photo-count-pill">
                       <Images size={11} /> {t.photosCount(ev.gallery.length)}
                     </span>
                   )}
                 </div>
+                <div className="merch-photo-bottom">
+                  <span className="mono" style={{ fontSize: 11.5, color: "rgba(255,255,255,0.88)", fontWeight: 600 }}>
+                    {ev.city} · {ev.dateRange}
+                  </span>
+                </div>
               </div>
 
               <div style={{ padding: "15px 18px 16px", display: "flex", flexDirection: "column", gap: 6 }}>
                 <h3
-                  style={{ margin: 0, fontSize: 16.5, fontWeight: 800, lineHeight: 1.36, cursor: "pointer" }}
+                  style={{ margin: 0, fontSize: 16, fontWeight: 800, lineHeight: 1.38, cursor: "pointer" }}
                   onClick={() => onOpenEvent(ev)}
                 >
                   {ev.title}
                 </h3>
-                <div style={{ fontSize: 12.5, color: "var(--text-2)", display: "flex", alignItems: "center", gap: 6 }}>
-                  <MapPin size={13} color="var(--brand-text)" />
+                <div style={{ fontSize: 12.5, color: "var(--text-3)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <MapPin size={12.5} color="var(--text-3)" />
                   {ev.venue}
                 </div>
               </div>
@@ -426,11 +417,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <section aria-label={t.homeMerchTitle}>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">{t.homeMerchKicker}</span>
             <h2 className="section-title">{t.homeMerchTitle}</h2>
           </div>
           <button type="button" className="ghost-link" onClick={() => onNavigate("merch")}>
-            {t.enterMerchLink(merch.length)} <ArrowRight size={15} />
+            {t.enterMerchLink(merch.length)} <ArrowRight size={14} />
           </button>
         </div>
 
@@ -443,7 +433,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="media-overlay-top">
                   <span
                     className={`cadence-pill ${MERCH_CADENCE_META[item.cadence].cssClass}`}
-                    style={{ background: "rgba(11,12,17,0.78)", color: "#fff" }}
+                    style={{ background: "rgba(11,12,17,0.74)", color: "#fff", borderColor: "rgba(255,255,255,0.14)" }}
                   >
                     {MERCH_CADENCE_LABELS[lang][item.cadence]}
                   </span>
@@ -460,13 +450,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   ))}
                 </div>
                 <h3
-                  style={{ margin: 0, fontSize: 15.5, fontWeight: 800, lineHeight: 1.38, cursor: "pointer" }}
+                  style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.4, cursor: "pointer" }}
                   onClick={() => onOpenMerch(item)}
                 >
                   {item.name}
                 </h3>
                 <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingTop: 6 }}>
-                  <span className="merch-price" style={{ fontSize: 17 }}>
+                  <span className="merch-price" style={{ fontSize: 16.5 }}>
                     {item.priceText}
                   </span>
                   <button
@@ -487,11 +477,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <section aria-label={t.homeNewsTitle}>
         <div className="section-head">
           <div className="section-title-group">
-            <span className="section-kicker">{t.homeNewsKicker}</span>
             <h2 className="section-title">{t.homeNewsTitle}</h2>
           </div>
           <button type="button" className="ghost-link" onClick={() => onNavigate("feed")}>
-            {t.allNewsLink(news.length)} <ArrowRight size={15} />
+            {t.allNewsLink(news.length)} <ArrowRight size={14} />
           </button>
         </div>
 

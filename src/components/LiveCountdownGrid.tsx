@@ -28,7 +28,7 @@ export const LiveCountdownGrid: React.FC<{ targetIso: string }> = ({ targetIso }
         <span className="cd-num">{pad(cd.minutes)}</span>
         <span className="cd-lbl">{t.cdUnits[2]}</span>
       </div>
-      <div className="cd-box">
+      <div className={`cd-box cd-box-sec ${cd.urgent48h ? "is-urgent" : ""}`}>
         <span className="cd-num" style={{ color: cd.urgent48h ? "var(--brand-text)" : "var(--gold-text)" }}>
           {pad(cd.seconds)}
         </span>
